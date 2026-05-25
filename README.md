@@ -139,7 +139,7 @@ paper notes。生成的 checked records 可以通过仓库命令重新生成，�
 
 For arXiv endorsement preparation, see `paper/arxiv_endorsement.md`.
 
-如需准备 arXiv endorsement / 推荐申请材料，见 `paper/arxiv_endorsement.md`。
+arXiv endorsement / 推荐申请材料，见 `paper/arxiv_endorsement.md`。
 
 ## Review Positioning / 评审定位
 
