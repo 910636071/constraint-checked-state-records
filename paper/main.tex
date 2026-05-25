@@ -3,6 +3,7 @@
 \usepackage{amsmath}
 \usepackage{booktabs}
 \usepackage{hyperref}
+\emergencystretch=2em
 
 \title{Minimal Symbolic Pipelines for Constraint-Checked State Records}
 \author{Lijie Wang\\Independent Researcher}
@@ -57,6 +58,30 @@ The contribution is an inspectable artifact consisting of:
     \item an explicit finite constraint checker; and
     \item a reproducible CSV score summary generated from checked records.
 \end{itemize}
+
+\section{Related Work and Positioning}
+
+This artifact is closest in spirit to small reproducible symbolic evaluation
+pipelines rather than learned language models. The constraint-checking layer is
+related to the long tradition of constraint satisfaction and consistency
+checking, where explicit relations are manipulated and tested rather than
+learned from examples \cite{mackworth1977}. The state-construction part is also
+adjacent to program-analysis work in which concrete records are mapped into
+intermediate abstract states for inspection or approximation
+\cite{cousot1977}. The present artifact does not attempt to reproduce the
+generality of those frameworks. Instead, it borrows the narrower idea that
+state, candidate, and checking interfaces should be explicit.
+
+The repository is also positioned as a reproducible computational artifact.
+Reproducible research has emphasized the importance of shipping enough data,
+code, and scripts for a reader to regenerate reported computational results
+\cite{claerbout1992}. The artifact follows this convention at a small scale:
+the case bank, deterministic baselines, pilot command, tests, and CSV summary
+are included so that the reported table can be regenerated directly.
+
+This positioning is intentionally modest. The work is not a new constraint
+solver, a static analyzer, or a learned model. It is a compact technical note
+that isolates one checked-record interface for external review.
 
 \section{Problem Formulation}
 
@@ -124,13 +149,14 @@ The artifact includes three deterministic baseline methods:
 All three methods receive the same constructed trace state and differ only in
 candidate selection.
 
-\texttt{summary\_loop} selects the highest-scoring accumulated state label.
-\texttt{template\_grid} selects a state label by using the record count and
-pass index as a deterministic position rule. \texttt{symbolic\_rule} first
-filters candidate labels through the case allow list when possible, then
-selects among the remaining accumulated state labels. These baselines are
-simple by design; their purpose is to make method-level differences visible
-under the same checked-record protocol.
+In method-type terms, \texttt{summary\_loop} is a max-score baseline: it
+selects the highest-scoring accumulated state label. \texttt{template\_grid} is
+a position-index baseline: it selects a state label by using the record count
+and pass index as a deterministic position rule. \texttt{symbolic\_rule} is an
+allow-filtered symbolic baseline: it first filters candidate labels through the
+case allow list when possible, then selects among the remaining accumulated
+state labels. These baselines are simple by design; their purpose is to make
+method-level differences visible under the same checked-record protocol.
 
 \subsection{ConstraintCheck}
 
@@ -209,6 +235,34 @@ while producing a lower average score. This observation is specific to the
 fixed synthetic case bank and deterministic baselines; it should be read as a
 pilot comparison, not as a general method ranking.
 
+Table~\ref{tab:failures} reports a constraint failure breakdown for the same
+checked records. The failure columns are not mutually exclusive: a single
+checked record may fail the allow condition and the required-match condition at
+the same time.
+
+\begin{table}[htbp]
+\centering
+\caption{Constraint failure breakdown over 200 checked records per method.}
+\label{tab:failures}
+\begin{tabular}{lrrrr}
+\toprule
+Method & Allow failed & Deny hit & Required failed & Passed \\
+\midrule
+summary\_loop & 150 & 30 & 180 & 20 \\
+template\_grid & 116 & 27 & 164 & 36 \\
+symbolic\_rule & 0 & 0 & 130 & 70 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The breakdown explains the aggregate tradeoff more directly. The
+\texttt{summary\_loop} baseline often selects high-scoring labels that do not
+match the case constraints. The \texttt{symbolic\_rule} baseline avoids allow
+and deny failures in this pilot, but still fails the required-match condition
+in 130 of 200 checked records. This supports the central artifact claim: the
+candidate score, allow/deny checks, required-match checks, and final pass rate
+are separable quantities that should be reported separately.
+
 \section{Limitations}
 
 This artifact has several important limitations. The case bank is synthetic and
@@ -234,5 +288,27 @@ the study. Natural next steps include stronger baselines, larger symbolic case
 banks, and formal analysis of constraint-preserving state transitions. These
 extensions can be evaluated against the same basic record-to-check-to-score
 boundary introduced here.
+
+\begin{thebibliography}{9}
+
+\bibitem{mackworth1977}
+Alan K. Mackworth.
+\newblock Consistency in networks of relations.
+\newblock \emph{Artificial Intelligence}, 8(1):99--118, 1977.
+
+\bibitem{cousot1977}
+Patrick Cousot and Radhia Cousot.
+\newblock Abstract interpretation: a unified lattice model for static analysis
+of programs by construction or approximation of fixpoints.
+\newblock In \emph{Conference Record of the Sixth Annual ACM SIGPLAN-SIGACT
+Symposium on Principles of Programming Languages}, pages 238--252, 1977.
+
+\bibitem{claerbout1992}
+Jon F. Claerbout and Martin Karrenbach.
+\newblock Electronic documents give reproducible research a new meaning.
+\newblock In \emph{SEG Technical Program Expanded Abstracts}, pages 601--604,
+1992.
+
+\end{thebibliography}
 
 \end{document}
