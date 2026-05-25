@@ -1,0 +1,13 @@
+__pycache__/
+.pytest_cache/
+cleanroom-*/
+*.pyc
+*.pyo
+*.log
+*.aux
+*.out
+*.pdf
+*.zip
+outputs/pilot_runs.jsonl
+paper/*.aux
+paper/*.out
