@@ -11,6 +11,20 @@ sufficiently separated from product-specific logic to support either:
 1. a later arXiv-style technical note, or
 2. a public white paper focused on reproducible artifact boundaries.
 
+## Research Direction
+
+The current research direction is public artifact boundary closure for
+constraint-checked symbolic state records. The intended object of review is not
+algorithmic performance, but the bounded interface that separates normalized
+records, trace state, deterministic proposals, finite constraint checks, and
+aggregate score reporting.
+
+In practical terms, the direction asks whether a small clean-room artifact can
+make a record-to-check-to-score protocol auditable enough to support later
+technical work. Possible later work may add stronger baselines or larger
+symbolic case banks, but those extensions are outside the v0.1.2 review
+boundary.
+
 ## Relationship to the Prior Artifact
 
 This repository follows the earlier public clean-room artifact:

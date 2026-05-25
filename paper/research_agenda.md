@@ -2,8 +2,13 @@
 
 This repository supports the second research direction:
 
-Clean-room minimal artifact for a constraint-checked symbolic pipeline over
-normalized records.
+Public artifact boundary closure for constraint-checked symbolic state records.
+
+The direction is to define a small reproducible protocol in which normalized
+records, trace state, deterministic proposals, finite constraint checks, and
+aggregate score reporting remain separated and auditable. The current artifact
+is therefore closer to a public white paper / external-review artifact than a
+full technical paper.
 
 ## Core Object
 
@@ -47,8 +52,8 @@ behavior, or deployment behavior.
 ## Next Work
 
 1. Keep the implementation frozen unless a release-blocking issue appears.
-2. Convert the current outline into a short paper draft.
-3. Add a result paragraph that explains the observed score/pass-rate tradeoff
-   without ranking one method as universally better.
-4. Prepare arXiv submission materials after the paper draft is internally
-   consistent with the repository.
+2. Collect external feedback on whether the boundary is clear and useful.
+3. Decide whether to continue as a public white paper or expand into an
+   arXiv-style technical note.
+4. If expanded later, add stronger baselines or larger symbolic case banks only
+   as v0.2 work.
