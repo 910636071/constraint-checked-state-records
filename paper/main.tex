@@ -197,7 +197,8 @@ baseline uses it as a deterministic selection position, and because repeated
 passes produce a complete checked-record table for the fixed protocol. The
 pilot therefore verifies the record-generation protocol and exposes method
 behavior across the same case bank, rather than estimating stochastic
-performance.
+performance. No statistical tests are applied because the protocol is
+deterministic and fully enumerated for the fixed case bank.
 
 \section{Results}
 
@@ -242,7 +243,9 @@ the same time.
 
 \begin{table}[htbp]
 \centering
-\caption{Constraint failure breakdown over 200 checked records per method.}
+\caption{Constraint failure breakdown over 200 checked records per method.
+``Deny hit'' means that the selected label appears in the deny list; failure
+columns are not mutually exclusive.}
 \label{tab:failures}
 \begin{tabular}{lrrrr}
 \toprule
