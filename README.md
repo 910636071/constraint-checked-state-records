@@ -141,11 +141,16 @@ For arXiv endorsement preparation, see `paper/arxiv_endorsement.md`.
 
 如需准备 arXiv endorsement / 推荐申请材料，见 `paper/arxiv_endorsement.md`。
 
-## External Review / 外部评审
+## Review Positioning / 评审定位
 
 For the current review positioning, see `paper/external_review_note.md`.
 
 当前版本的外部评审定位见 `paper/external_review_note.md`。
+
+The next step is to ask human reviewers whether the artifact boundary is clear
+and useful.
+
+下一步是请人类评审者判断该 artifact 的边界是否清晰、有用。
 
 This repository follows the earlier public clean-room artifact at
 https://github.com/910636071/rgbd-safe-minimal and narrows the review boundary

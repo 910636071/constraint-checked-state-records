@@ -1,4 +1,6 @@
-# External Review Note
+# External Review Positioning Note
+
+This note records the intended positioning for future human external review.
 
 This v0.1.2 draft is currently positioned as a public artifact white paper
 rather than a full technical paper. The purpose is to expose a bounded protocol

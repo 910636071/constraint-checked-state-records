@@ -7,7 +7,7 @@ Public artifact boundary closure for constraint-checked symbolic state records.
 The direction is to define a small reproducible protocol in which normalized
 records, trace state, deterministic proposals, finite constraint checks, and
 aggregate score reporting remain separated and auditable. The current artifact
-is therefore closer to a public white paper / external-review artifact than a
+is therefore closer to a public white paper prepared for external review than a
 full technical paper.
 
 ## Core Object
