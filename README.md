@@ -141,6 +141,12 @@ For arXiv endorsement preparation, see `paper/arxiv_endorsement.md`.
 
 如需准备 arXiv endorsement / 推荐申请材料，见 `paper/arxiv_endorsement.md`。
 
+## External Review / 外部评审
+
+For the current review positioning, see `paper/external_review_note.md`.
+
+当前版本的外部评审定位见 `paper/external_review_note.md`。
+
 ## License / 许可证
 
 This repository is released under the MIT License. See `LICENSE`.
