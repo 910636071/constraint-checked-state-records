@@ -11,6 +11,31 @@ sufficiently separated from product-specific logic to support either:
 1. a later arXiv-style technical note, or
 2. a public white paper focused on reproducible artifact boundaries.
 
+## Relationship to the Prior Artifact
+
+This repository follows the earlier public clean-room artifact:
+
+https://github.com/910636071/rgbd-safe-minimal
+
+The prior artifact established a minimal symbolic pipeline over normalized
+records. This repository narrows the public review boundary around
+constraint-checked state records and makes the record-to-check-to-score protocol
+the primary object of review.
+
+In this note, "closure" refers to artifact boundary closure rather than
+mathematical convergence. The closure process is:
+
+1. close the input boundary around fixed synthetic normalized records;
+2. close the transformation boundary around deterministic state and proposal
+   construction;
+3. close the checking boundary around finite explicit constraints; and
+4. close the reporting boundary around aggregate scores and constraint-failure
+   summaries.
+
+This closure process is meant to make the artifact auditable and reproducible.
+It is not a convergence proof and does not claim that the pipeline converges to
+an optimal method.
+
 Suggested review questions:
 
 1. Is the artifact boundary clear?

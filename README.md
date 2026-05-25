@@ -147,6 +147,14 @@ For the current review positioning, see `paper/external_review_note.md`.
 
 当前版本的外部评审定位见 `paper/external_review_note.md`。
 
+This repository follows the earlier public clean-room artifact at
+https://github.com/910636071/rgbd-safe-minimal and narrows the review boundary
+toward constraint-checked state records.
+
+本仓库承接前一个公开 clean-room artifact：
+https://github.com/910636071/rgbd-safe-minimal ，并将评审边界进一步收束到
+constraint-checked state records。
+
 ## License / 许可证
 
 This repository is released under the MIT License. See `LICENSE`.
