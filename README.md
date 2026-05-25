@@ -155,6 +155,24 @@ toward constraint-checked state records.
 https://github.com/910636071/rgbd-safe-minimal ，并将评审边界进一步收束到
 constraint-checked state records。
 
+## Boundary Closure / 边界收束
+
+In this repository, "closure" means artifact boundary closure, not mathematical
+convergence. The public review object is closed around four finite interfaces:
+
+1. fixed synthetic normalized records;
+2. deterministic state and proposal construction;
+3. finite explicit constraint checks; and
+4. aggregate scores and constraint-failure summaries.
+
+本仓库中的“收束”指 artifact boundary closure，不是数学意义上的 convergence。
+当前公开评审对象收束在四个有限接口内：
+
+1. 固定的 synthetic normalized records；
+2. 确定性的状态构造和候选生成；
+3. 有限显式约束检查；
+4. 聚合评分和约束失败摘要。
+
 ## License / 许可证
 
 This repository is released under the MIT License. See `LICENSE`.
