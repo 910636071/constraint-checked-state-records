@@ -25,8 +25,8 @@ The goal is to make the separation between structured records, intermediate
 trace state, method proposals, explicit constraint checks, and aggregate scores
 directly inspectable. The artifact does not include natural language parsing,
 persona generation, user profiling, product-specific memory logic, or
-production code. It is intended as a draft prepared for external review of a
-small artifact paper / technical note, not as a broad empirical claim.
+production code. It is a small artifact paper / technical note, not a broad
+empirical claim.
 \end{abstract}
 
 \section{Introduction}
@@ -50,6 +50,10 @@ The scope is intentionally narrow. This work does not make claims about
 general language models, persona models, user modeling, or deployed systems.
 It studies a compact reproducible artifact whose purpose is to make the
 interfaces between records, traces, proposals, checks, and scores explicit.
+In this paper, clean-room means that the artifact does not use real user data,
+production code, private terminology, previous draft content, or external
+document content. The case bank is generated as synthetic structured data
+within the repository.
 
 The contribution is an inspectable artifact consisting of:
 \begin{itemize}
@@ -81,7 +85,7 @@ are included so that the reported table can be regenerated directly.
 
 This positioning is intentionally modest. The work is not a new constraint
 solver, a static analyzer, or a learned model. It is a compact technical note
-that isolates one checked-record interface for external review.
+that isolates one checked-record interface for inspection.
 
 \section{Problem Formulation}
 
@@ -200,6 +204,17 @@ behavior across the same case bank, rather than estimating stochastic
 performance. No statistical tests are applied because the protocol is
 deterministic and fully enumerated for the fixed case bank.
 
+\section{Artifact Availability}
+
+The artifact is available in the public
+\href{https://github.com/910636071/constraint-checked-state-records}{repository}.
+It is released under the MIT License and includes the synthetic case bank,
+pipeline implementation, pilot scripts, tests, term scan, paper notes, and
+aggregate CSV summary. A versioned review should cite the repository URL
+together with the specific Git commit or release tag used for inspection. The
+pilot records and summary can be regenerated with the commands in the previous
+section.
+
 \section{Results}
 
 Table~\ref{tab:results} reports the aggregate pilot metrics generated from the
@@ -276,7 +291,7 @@ claim about broad empirical behavior. It also does not include production
 logic or a deployment claim.
 
 These limitations are part of the design boundary. The purpose of the artifact
-is to provide a small reproducible object for external review, not to establish
+is to provide a small reproducible object for inspection, not to establish
 large-scale performance claims.
 
 \section{Conclusion}

@@ -91,9 +91,11 @@ process.
 Materials:
 
 - Repository: https://github.com/910636071/constraint-checked-state-records
-- Draft or outline: [paper URL or attachment]
-- arXiv endorsement request: [request link or endorsement code provided by
-  arXiv after starting the submission, if endorsement is required]
+- Draft source:
+  https://github.com/910636071/constraint-checked-state-records/blob/main/paper/main.tex
+- arXiv endorsement request: to be filled with the arXiv-provided request link
+  or endorsement code after starting the submission, if endorsement is
+  required.
 
 Thank you for considering this request.
 
@@ -134,9 +136,9 @@ r_t -> s_t -> p_t -> z_t -> q
 材料如下：
 
 - 仓库：https://github.com/910636071/constraint-checked-state-records
-- 论文草稿或 outline：[paper URL or attachment]
-- arXiv endorsement request：[开始 arXiv submission 后，如果系统要求 endorsement，
-  使用 arXiv 提供的 request link 或 endorsement code]
+- 论文草稿源码：https://github.com/910636071/constraint-checked-state-records/blob/main/paper/main.tex
+- arXiv endorsement request：开始 arXiv submission 后，如果系统要求 endorsement，
+  再填写 arXiv 提供的 request link 或 endorsement code。
 
 谢谢您的时间。
 
