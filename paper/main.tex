@@ -1,5 +1,6 @@
 \documentclass[11pt]{article}
 \usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
 \usepackage{booktabs}
 \usepackage{hyperref}
 
@@ -11,47 +12,177 @@
 \maketitle
 
 \begin{abstract}
-This paper describes a compact computational artifact for comparing linear
-symbolic methods over normalized records. The artifact maps synthetic cases to
-trace stores, applies deterministic baseline methods, checks candidate records
-against finite constraint sets, and reports aggregate scores. The implementation
-is designed for direct reproduction with a small fixed case bank and a concise
-pilot protocol.
+This technical note describes a clean-room minimal research artifact for
+evaluating a constraint-checked symbolic pipeline over normalized records. The
+artifact follows a fixed implementation sequence:
+\[
+\text{SyntheticCase} \rightarrow \text{TraceStore} \rightarrow
+\text{Baselines} \rightarrow \text{ConstraintCheck} \rightarrow
+\text{ScoreCard}.
+\]
+The goal is to make the separation between structured records, intermediate
+trace state, method proposals, explicit constraint checks, and aggregate scores
+directly inspectable. The artifact does not include natural language parsing,
+persona generation, user profiling, product-specific memory logic, or
+production code. It is intended as an external-review draft of a small
+artifact paper / technical note, not as a broad empirical claim.
 \end{abstract}
 
 \section{Introduction}
-Symbolic pipelines are often easiest to evaluate when each transformation is
-kept explicit. This work studies a minimal setting in which normalized records
-are converted into intermediate states, method-specific candidates, checked
-records, and aggregate score cards.
 
-The contribution is an inspectable artifact with twenty synthetic cases, three
-deterministic baseline methods, a constraint checker, and a CSV score summary.
+Constraint-checked state records are useful when a pipeline must distinguish
+between what is represented, what a method proposes, what a constraint checker
+accepts, and what an aggregate score reports. In small multi-stage symbolic
+systems, these roles can easily be collapsed into a single output value. Once
+that happens, it becomes difficult to inspect whether a result came from the
+record representation, the candidate-selection method, the constraint layer, or
+the score aggregation rule.
 
-\section{Methodology}
-The artifact follows a linear sequence:
-SyntheticCase, TraceStore, Baselines, ConstraintCheck, and ScoreCard. Each stage
-accepts structured records and returns structured records. The baseline methods
-share the same input representation and differ only in candidate selection.
+This paper studies that separation in a deliberately small setting. The
+artifact uses normalized symbolic records rather than free-form text. Each case
+contains structured traces and finite lists of allowed, denied, and required
+state labels. A deterministic method produces a candidate record, a constraint
+checker evaluates that candidate against the case lists, and a score card
+aggregates the checked records.
 
-\subsection{Baseline Methods}
-\textbf{summary\_loop} selects the strongest accumulated state.
-\textbf{template\_grid} selects a state by trace position and pass index.
-\textbf{symbolic\_rule} selects from states that satisfy the case lists when
-available.
+The scope is intentionally narrow. This work does not make claims about
+general language models, persona models, user modeling, or deployed systems.
+It studies a compact reproducible artifact whose purpose is to make the
+interfaces between records, traces, proposals, checks, and scores explicit.
 
-\section{Experimental Protocol}
-The pilot contains twenty synthetic cases, three methods, and ten repeated
-passes. This gives 600 checked records. The aggregate table reports average
-score, pass rate, and average record count for each method.
+The contribution is an inspectable artifact consisting of:
+\begin{itemize}
+    \item a fixed bank of 20 synthetic normalized cases;
+    \item three deterministic baseline methods;
+    \item an explicit finite constraint checker; and
+    \item a reproducible CSV score summary generated from checked records.
+\end{itemize}
+
+\section{Problem Formulation}
+
+The paper-level formulation is the following checked-record chain:
+\[
+r_t \rightarrow s_t \rightarrow p_t \rightarrow z_t \rightarrow q.
+\]
+
+Here $r_t$ is a normalized input record, $s_t$ is the trace state constructed
+from observed records, $p_t$ is a method proposal or candidate, $z_t$ is the
+checked record after applying constraints, and $q$ is an aggregate score card.
+In the implemented artifact, the transformation can be written as:
+\[
+s_t = F(s_{t-1}, r_t),
+\]
+\[
+p_t = G(s_t, m),
+\]
+\[
+z_t = H(p_t, C),
+\]
+\[
+q = A(\{z_t\}).
+\]
+The symbol $m$ denotes the candidate-selection method, and $C$ denotes the
+finite constraint set attached to a case.
+
+This formulation does not require natural language parsing or a learned model.
+It requires only structured input records, deterministic candidate methods, and
+finite reproducible constraints. The design is therefore small enough to audit
+directly: each checked output record can be traced back to an input case, an
+intermediate state, a method choice, and an explicit constraint decision.
+
+\section{Artifact Design}
+
+The implementation-level artifact follows this sequence:
+\[
+\text{SyntheticCase} \rightarrow \text{TraceStore} \rightarrow
+\text{Baselines} \rightarrow \text{ConstraintCheck} \rightarrow
+\text{ScoreCard}.
+\]
+This sequence is the concrete module boundary for the repository. It is the
+implementation counterpart to the symbolic chain in the previous section.
+
+\subsection{SyntheticCase}
+
+The case bank contains fixed synthetic normalized records. Each case has a
+case identifier, a list of traces, an allow list, a deny list, and a required
+match list. Each trace has a trace identifier, a signal label, two symbolic
+agent identifiers, a tick value, and structured attributes. The attributes
+include a state label, an origin trace, a weight band, and a decay rate. The
+case bank is synthetic and is included only to make the protocol reproducible.
+
+\subsection{TraceStore}
+
+The trace store provides the shared intermediate representation. It orders
+case traces by tick and trace identifier, then exposes them as records for
+state construction. This stage does not select a method-specific candidate. Its
+role is to provide a common ordered trace input to all baselines.
+
+\subsection{Baselines}
+
+The artifact includes three deterministic baseline methods:
+\texttt{summary\_loop}, \texttt{template\_grid}, and \texttt{symbolic\_rule}.
+All three methods receive the same constructed trace state and differ only in
+candidate selection.
+
+\texttt{summary\_loop} selects the highest-scoring accumulated state label.
+\texttt{template\_grid} selects a state label by using the record count and
+pass index as a deterministic position rule. \texttt{symbolic\_rule} first
+filters candidate labels through the case allow list when possible, then
+selects among the remaining accumulated state labels. These baselines are
+simple by design; their purpose is to make method-level differences visible
+under the same checked-record protocol.
+
+\subsection{ConstraintCheck}
+
+The constraint checker evaluates a proposal against explicit finite
+constraints. For each checked record, it reports whether the selected state
+label appears in the allow list, whether it appears in the deny list, and
+whether it appears in the required match list. A checked record passes only
+when the selected state is allowed, not denied, and required by the case.
+
+\subsection{ScoreCard}
+
+The score card aggregates checked records by method. It reports the number of
+runs, average score, pass rate, and average record count. These metrics are not
+intended to rank methods in general. They summarize behavior under the fixed
+case bank and constraint protocol.
+
+\section{Pilot Protocol}
+
+The pilot uses 20 cases, three methods, and ten repeated passes:
+\[
+20 \times 3 \times 10 = 600
+\]
+checked records. The exact command used to generate the pilot records is:
+\begin{verbatim}
+python -m scripts.run_pilot --cases data/cases_small.jsonl --runs 10 \
+  --methods summary_loop,template_grid,symbolic_rule \
+  --out outputs/pilot_runs.jsonl
+\end{verbatim}
+The aggregate CSV is generated by:
+\begin{verbatim}
+python -m scripts.export_summary --input outputs/pilot_runs.jsonl \
+  --out outputs/summary_agg.csv
+\end{verbatim}
+
+The repeated passes should not be interpreted as estimating randomness. The
+methods are deterministic. The pass index is part of the protocol because one
+baseline uses it as a deterministic selection position, and because repeated
+passes produce a complete checked-record table for the fixed protocol. The
+pilot therefore verifies the record-generation protocol and exposes method
+behavior across the same case bank, rather than estimating stochastic
+performance.
 
 \section{Results}
-The initial result table is generated by \texttt{scripts/export\_summary.py}
-from the pilot records.
+
+Table~\ref{tab:results} reports the aggregate pilot metrics generated from the
+current artifact. The pilot contains 600 checked records, grouped into 200
+records per method.
 
 \begin{table}[htbp]
 \centering
-\caption{Aggregate pilot metrics. Values are filled from the generated CSV.}
+\caption{Aggregate pilot metrics generated from the checked-record protocol.}
+\label{tab:results}
 \begin{tabular}{lccc}
 \toprule
 Method & Average score & Pass rate & Average record count \\
@@ -63,10 +194,45 @@ symbolic\_rule & 0.917717 & 0.350000 & 6.850000 \\
 \end{tabular}
 \end{table}
 
+The pilot exposes a score/pass-rate tradeoff. The \texttt{summary\_loop}
+baseline has the highest average score, $1.392134$, but the lowest pass rate,
+$0.100000$. The \texttt{symbolic\_rule} baseline has a lower average score,
+$0.917717$, but the highest pass rate, $0.350000$. The
+\texttt{template\_grid} baseline has the lowest average score, $0.793868$, and
+an intermediate pass rate, $0.180000$.
+
+These results show that the score and constraint satisfaction are different
+dimensions in this artifact. Selecting the highest accumulated score does not
+necessarily select a candidate that satisfies the finite case constraints. A
+constraint-aware selection rule can increase the pass rate under this protocol
+while producing a lower average score. This observation is specific to the
+fixed synthetic case bank and deterministic baselines; it should be read as a
+pilot comparison, not as a general method ranking.
+
+\section{Limitations}
+
+This artifact has several important limitations. The case bank is synthetic and
+contains only 20 cases. The baselines are deterministic and intentionally
+simple. The constraints are finite and manually specified within each case. The
+artifact does not include learned methods, natural language parsing, or any
+claim about broad empirical behavior. It also does not include production
+logic or a deployment claim.
+
+These limitations are part of the design boundary. The purpose of the artifact
+is to provide a small reproducible object for external review, not to establish
+large-scale performance claims.
+
 \section{Conclusion}
-The artifact provides a small reproducible basis for studying linear symbolic
-state construction and constraint checking. The pilot establishes a compact
-baseline for comparing candidate selection strategies under the same normalized
-record inputs and finite case lists.
+
+This technical note presents a minimal reproducible basis for studying
+constraint-checked state records. The contribution is not performance. The
+contribution is a clean separation between normalized records, shared trace
+state, method proposals, explicit constraint checks, and aggregate scores.
+
+Future work should stay within this interface while increasing the strength of
+the study. Natural next steps include stronger baselines, larger symbolic case
+banks, and formal analysis of constraint-preserving state transitions. These
+extensions can be evaluated against the same basic record-to-check-to-score
+boundary introduced here.
 
 \end{document}
