@@ -17,6 +17,20 @@ The pipeline is:
 r_t -> s_t -> p_t -> z_t -> q
 ```
 
+The implementation-level chain is:
+
+实现层链条为：
+
+```text
+SyntheticCase -> TraceStore -> Baselines -> ConstraintCheck -> ScoreCard
+```
+
+These two views describe the same artifact at different levels. The symbolic
+chain is the paper formulation; the implementation chain is the reproducible
+module boundary.
+
+这两种表述描述的是同一个 artifact 的不同层级：符号链条是论文中的形式化表达，实现层链条是可复现代码的模块边界。
+
 ## Contributions / 贡献
 
 1. A minimal symbolic pipeline that separates state construction, candidate

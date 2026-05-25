@@ -13,6 +13,15 @@ The study object is the checked record pipeline:
 r_t -> s_t -> p_t -> z_t -> q
 ```
 
+At the implementation level, the same object is represented as:
+
+```text
+SyntheticCase -> TraceStore -> Baselines -> ConstraintCheck -> ScoreCard
+```
+
+The paper should use the symbolic chain as the formal object and the
+implementation chain as the artifact boundary.
+
 The current artifact fixes:
 
 - 20 synthetic normalized cases.
