@@ -195,6 +195,10 @@ reproducible evidence boundary; Paper 2 states a finite concept-space variance
 bound over typed records, explicit constraints, append-only event sequences, and
 three-stage formal maps.
 
+The repeated implementation files are intentional: this repository inherits the
+Paper 1 clean-room artifact as a frozen evidence boundary. The new review object
+is the Paper 2 finite-space variance theory, not a second software contribution.
+
 The Paper 2 draft does not include downstream expression experiments, external
 service calls, operational data, unrestricted-output variance claims, or later
 empirical validation. Those are outside the current repository boundary until
@@ -203,6 +207,9 @@ explicitly added later.
 `paper/paper2_finite_concept_filling.md` 是独立的理论白皮书草稿，不改变 Paper 1 的
 artifact 协议。Paper 1 仍然是最小可复现证据边界；Paper 2 只陈述有限概念空间、
 类型化记录、显式约束、append-only event sequences 和三阶段形式映射下的方差界。
+
+重复的实现文件是有意保留的：本仓库继承 Paper 1 的 clean-room artifact 作为冻结的证据边界。
+新的评审对象是 Paper 2 的有限空间方差理论，而不是第二套软件贡献。
 
 Paper 2 草稿不包含下游表达实验、外部服务调用、运行数据、非受限输出方差声明或后续经验验证。
 这些内容在明确加入之前都不属于当前仓库边界。

@@ -2,66 +2,66 @@
 
 This repository supports the second research direction:
 
-Public artifact boundary closure for constraint-checked symbolic state records.
+Variance decay for finite constraint-checked symbolic estimators.
 
-The direction is to define a small reproducible protocol in which normalized
-records, trace state, deterministic proposals, finite constraint checks, and
-aggregate score reporting remain separated and auditable. The current artifact
-is therefore closer to a public white paper prepared for external review than a
-full technical paper.
+The current repository intentionally reuses the Paper 1 clean-room artifact as a
+frozen evidence boundary. Paper 1 is the reproducible protocol. Paper 2 is the
+formal theory layer built above that protocol.
 
-## Core Object
-
-The study object is the checked record pipeline:
+## Three-Layer Program
 
 ```text
-r_t -> s_t -> p_t -> z_t -> q
+Paper 1: minimal reproducible artifact
+Paper 2: finite-space variance theory
+Future empirical work: measurement protocol over larger symbolic streams
 ```
 
-At the implementation level, the same object is represented as:
+The purpose of this repository is Paper 2. It should not be reviewed as a
+second implementation contribution. The software modules remain close to Paper
+1 so that the assumptions in Paper 2 can be inspected against a small,
+deterministic, public artifact.
+
+## Paper 2 Research Object
+
+Paper 2 studies this abstract object:
 
 ```text
-SyntheticCase -> TraceStore -> Baselines -> ConstraintCheck -> ScoreCard
+accepted observations
+  -> finite concept coordinates
+  -> explicit constraint checks
+  -> bounded empirical estimator
+  -> aggregate variance bound
 ```
 
-The paper should use the symbolic chain as the formal object and the
-implementation chain as the artifact boundary.
+The main theorem is conditional. It applies only when:
 
-The current artifact fixes:
+- the concept coordinate space is finite;
+- the constraint set is fixed and explicit during evaluation;
+- accepted samples are independent or weakly dependent;
+- committed scalar outcomes are bounded; and
+- downstream measurement maps are deterministic or Lipschitz-bounded.
 
-- 20 synthetic normalized cases.
-- Three deterministic candidate-selection methods.
-- One finite constraint-checking protocol.
-- One aggregate score card.
+## Current Questions
 
-## Research Questions
-
-1. How do deterministic candidate-selection methods change score and pass-rate
-   under the same checked-record protocol?
-2. Which parts of the result come from state construction, candidate selection,
-   and constraint checking?
-3. How small can the protocol remain while still producing inspectable
-   method-level differences?
+1. Are the assumptions strong enough to make the variance theorem self-contained?
+2. Is the interface separation clear enough for another researcher to audit?
+3. Does the inherited Paper 1 artifact make the theory less abstract without
+   creating unnecessary implementation claims?
+4. What synthetic convergence experiment would be the smallest credible next
+   validation step?
 
 ## Evidence Boundary
 
-The current evidence supports only a compact artifact paper / technical note.
-It does not support claims about broad empirical superiority, large-scale model
-behavior, or deployment behavior.
+The current evidence supports a public theory white paper plus a minimal
+artifact reference. It does not yet support broad empirical claims,
+real-world operational claims, or claims about unrestricted generated output.
 
 ## Next Work
 
-1. Keep the implementation frozen unless a release-blocking issue appears.
-2. Collect external feedback on whether the boundary is clear and useful.
-3. Decide whether to continue as a public white paper or expand into an
-   arXiv-style technical note.
-4. If expanded later, add stronger baselines or larger symbolic case banks only
-   as v0.2 work.
-
-## Paper 2 Theory Track
-
-The separate Paper 2 white paper draft is
-`paper/paper2_finite_concept_filling.md`. It should remain separate from the
-Paper 1 artifact claim. Paper 2 studies a finite concept-filling variance bound
-for constrained symbolic expression. It does not depend on deployment data and
-should not change the frozen Paper 1 protocol.
+1. Keep the inherited Paper 1 implementation frozen unless a release-blocking
+   issue appears.
+2. Ask human reviewers to inspect the Paper 2 theorem and assumptions.
+3. If expanded, add a synthetic convergence experiment that reports variance
+   envelopes rather than strict finite-sample monotonicity.
+4. Keep future empirical validation as a separate work item until it has its
+   own public abstraction and evidence boundary.

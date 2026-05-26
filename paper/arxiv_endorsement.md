@@ -18,7 +18,7 @@ endorsement is required.
 arXiv's January 21, 2026 policy update states that an institutional email alone
 is no longer sufficient for new authors. New submitters either need an
 institutional email plus prior arXiv authorship in the relevant endorsement
-domain, or personal endorsement from an established arXiv author in the same
+domain, or individual endorsement from an established arXiv author in the same
 endorsement domain.
 
 Official references:
@@ -30,9 +30,10 @@ Official references:
 
 Working target: `cs.AI`
 
-Reason: the manuscript studies a minimal symbolic pipeline with explicit state
-construction, deterministic candidate generation, finite constraint checking,
-and aggregate evaluation over normalized symbolic records.
+Reason: the current manuscript studies finite constraint-checked symbolic
+estimators and a bounded variance-decay statement over typed symbolic records.
+The implementation artifact is used as a minimal reproducible substrate rather
+than as the main contribution.
 
 This category should be verified during arXiv submission. If arXiv recommends a
 different primary category, the endorsement request should follow that category
@@ -41,28 +42,28 @@ and its endorsement domain.
 ## Paper Summary
 
 Title:
-Minimal Symbolic Pipelines for Constraint-Checked State Records
+Variance Decay for Finite Constraint-Checked Symbolic Estimators
 
 Short summary:
-This paper presents a clean-room minimal artifact for studying a deterministic
-symbolic pipeline over normalized records. The pipeline separates state
-construction, candidate generation, constraint checking, and aggregate
-evaluation. The repository includes 20 synthetic cases, three deterministic
-baseline methods, a finite constraint checker, tests, and a reproducible pilot
-that generates 600 checked records.
+This paper studies a finite-space theory layer built on top of a clean-room
+symbolic artifact. The main claim is a conditional variance-decay statement:
+when accepted observations are mapped into a finite concept space through
+explicit validation, typing, and commitment interfaces, bounded empirical
+estimators have variance that decays with sample size. The existing artifact is
+kept as a minimal reproducible substrate for inspecting the assumptions.
 
 Scope:
 
-- This is an artifact paper / technical note.
-- It does not claim a new large-scale model.
+- This is a theory white paper / technical note supported by a minimal artifact.
+- It does not claim a new model or solver.
 - It does not claim broad empirical superiority.
 - It does not use real user data.
-- It does not depend on external examples.
+- It does not depend on external examples or operational data.
 
 ## Endorsement Request Email
 
 Subject:
-arXiv endorsement request for a cs.AI artifact paper
+arXiv endorsement request for a cs.AI technical note
 
 Body:
 
@@ -71,17 +72,22 @@ Dear Professor/Dr. [Name],
 I am Lijie Wang, an independent researcher preparing a first arXiv submission in
 `cs.AI`.
 
-My manuscript is titled "Minimal Symbolic Pipelines for Constraint-Checked State
-Records." It is a short artifact paper / technical note. The work defines a
-minimal deterministic symbolic pipeline:
+My manuscript is titled "Variance Decay for Finite Constraint-Checked Symbolic
+Estimators." It is a short theory white paper / technical note supported by a
+minimal clean-room artifact. The work studies a finite symbolic estimator:
 
 ```text
-r_t -> s_t -> p_t -> z_t -> q
+accepted observations
+  -> finite concept coordinates
+  -> explicit constraint checks
+  -> bounded empirical estimator
 ```
 
-The repository contains a clean-room implementation, 20 synthetic cases, three
-deterministic baseline methods, finite constraint checks, tests, and a pilot
-protocol that generates 600 checked records.
+The main theorem states a bounded variance-decay result under explicit
+assumptions: finite concept dimension, fixed finite constraints, bounded
+committed outcomes, and independent or weakly dependent accepted observations.
+The repository also contains the inherited minimal artifact used to inspect the
+record-check-score boundary.
 
 I understand that endorsement is not peer review and does not imply agreement
 with the paper's claims. I am asking only whether the submission is within the
@@ -91,8 +97,10 @@ process.
 Materials:
 
 - Repository: https://github.com/910636071/constraint-checked-state-records
-- Draft source:
-  https://github.com/910636071/constraint-checked-state-records/blob/main/paper/main.tex
+- Paper 2 theory draft:
+  https://github.com/910636071/constraint-checked-state-records/blob/main/paper/paper2_finite_concept_filling.md
+- External review note:
+  https://github.com/910636071/constraint-checked-state-records/blob/main/paper/external_review_note.md
 - arXiv endorsement request: to be filled with the arXiv-provided request link
   or endorsement code after starting the submission, if endorsement is
   required.
@@ -120,15 +128,21 @@ wanglijie100@gmail.com
 
 我是独立研究者 Lijie Wang，正在准备第一次向 arXiv 的 `cs.AI` 分类提交论文。
 
-论文题目是 "Minimal Symbolic Pipelines for Constraint-Checked State Records"。
-这是一篇短的 artifact paper / technical note，核心是一条最小确定性符号管线：
+论文题目暂定为 "Variance Decay for Finite Constraint-Checked Symbolic
+Estimators"。这是一篇由最小 clean-room artifact 支撑的理论白皮书 /
+technical note，核心对象是有限符号估计器：
 
 ```text
-r_t -> s_t -> p_t -> z_t -> q
+accepted observations
+  -> finite concept coordinates
+  -> explicit constraint checks
+  -> bounded empirical estimator
 ```
 
-仓库包含 clean-room 实现、20 条 synthetic cases、三种确定性 baseline 方法、
-有限约束检查、测试，以及一个可以生成 600 条 checked records 的 pilot 协议。
+主要结论是一个有条件的方差衰减结果：在有限概念维度、固定显式约束、
+有界提交结果，以及独立或弱依赖 accepted observations 的条件下，经验估计量的
+方差随样本规模下降。仓库中的最小 artifact 用于检查 record-check-score 边界，
+不是第二个实现贡献。
 
 我理解 arXiv endorsement 不是同行评审，也不表示 endorser 同意论文的全部结论。
 我希望请您判断这项工作是否属于该 arXiv 分类范围，并是否适合进入 arXiv 投稿流程。
@@ -136,7 +150,8 @@ r_t -> s_t -> p_t -> z_t -> q
 材料如下：
 
 - 仓库：https://github.com/910636071/constraint-checked-state-records
-- 论文草稿源码：https://github.com/910636071/constraint-checked-state-records/blob/main/paper/main.tex
+- Paper 2 理论草稿：https://github.com/910636071/constraint-checked-state-records/blob/main/paper/paper2_finite_concept_filling.md
+- 外部评审说明：https://github.com/910636071/constraint-checked-state-records/blob/main/paper/external_review_note.md
 - arXiv endorsement request：开始 arXiv submission 后，如果系统要求 endorsement，
   再填写 arXiv 提供的 request link 或 endorsement code。
 

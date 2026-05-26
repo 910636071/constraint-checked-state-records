@@ -1,59 +1,86 @@
-# External Review Positioning Note
+# External Review Note for the Paper 2 Theory Track
 
-This note records the intended positioning for future human external review.
+This note records the intended positioning for human mentor or external review.
+It should be read together with `paper/paper2_finite_concept_filling.md`.
 
-This v0.1.2 draft is currently positioned as a public artifact white paper
-rather than a full technical paper. The purpose is to expose a bounded protocol
-for normalized symbolic records, deterministic proposals, finite constraint
-checks, and aggregate score reporting.
+The repository contains two layers:
 
-The main review question is whether this bounded protocol is clear, useful, and
-sufficiently separated from product-specific logic to support either:
+1. an inherited clean-room artifact layer from Paper 1, kept as the minimal
+   reproducible evidence boundary; and
+2. a Paper 2 theory layer, which studies variance decay for finite
+   constraint-checked symbolic estimators.
 
-1. a later arXiv-style technical note, or
-2. a public white paper focused on reproducible artifact boundaries.
+The implementation modules are intentionally close to the Paper 1 artifact. The
+new object for review is not another software system. It is the formal question
+of whether bounded observations, finite concept coordinates, explicit
+constraints, and an append-only event sequence are sufficient to support a
+variance-decay statement for an empirical symbolic estimator.
 
-## Research Direction
+## Current Review Target
 
-The current research direction is public artifact boundary closure for
-constraint-checked symbolic state records. The intended object of review is not
-algorithmic performance, but the bounded interface that separates normalized
-records, trace state, deterministic proposals, finite constraint checks, and
-aggregate score reporting.
+The current review target is:
 
-In practical terms, the direction asks whether a small clean-room artifact can
-make a record-to-check-to-score protocol auditable enough to support later
-technical work. Possible later work may add stronger baselines or larger
-symbolic case banks, but those extensions are outside the v0.1.2 review
-boundary.
+```text
+finite concept space
+  + explicit constraint set
+  + validation / typing / commitment interfaces
+  + bounded empirical estimator
+  -> variance bound
+```
 
-## Relationship to the Prior Artifact
+The key theorem is a bounded-variance statement. For scalar committed signals
+`Y_i in [0, M]`, the draft states:
 
-This repository follows the earlier public clean-room artifact:
+```text
+Var(mu_hat_m) <= M^2 / (4m).
+```
 
-https://github.com/910636071/rgbd-safe-minimal
+For vector concept estimates passed through an `L`-Lipschitz downstream
+measurement map, the draft states:
 
-The prior artifact established a minimal symbolic pipeline over normalized
-records. This repository narrows the public review boundary around
-constraint-checked state records and makes the record-to-check-to-score protocol
-the primary object of review.
+```text
+Var(E(C_m)) <= L^2 n / (4m).
+```
 
-In this note, "closure" refers to artifact boundary closure rather than
-mathematical convergence. The closure process is:
+These are conditional statements. They require finite dimension, bounded
+outcomes, fixed explicit constraints, and independent or weakly dependent
+accepted observations.
 
-1. close the input boundary around fixed synthetic normalized records;
-2. close the transformation boundary around deterministic state and proposal
-   construction;
-3. close the checking boundary around finite explicit constraints; and
-4. close the reporting boundary around aggregate scores and constraint-failure
-   summaries.
+## Relationship to Paper 1
 
-This closure process is meant to make the artifact auditable and reproducible.
-It is not a convergence proof and does not claim that the pipeline converges to
-an optimal method.
+Paper 1 answers a smaller reproducibility question:
 
-Suggested review questions:
+```text
+Can a clean-room symbolic pipeline separate records, traces, proposals,
+constraint checks, and aggregate scores?
+```
 
-1. Is the artifact boundary clear?
-2. Is the clean-room positioning credible?
-3. Should this become a technical note or remain a public white paper?
+Paper 2 uses that separation as a substrate for a broader theory question:
+
+```text
+Under finite concept constraints, does the empirical estimator have a
+sample-size variance bound?
+```
+
+The repeated modules are therefore not intended as a second implementation
+claim. They are a frozen minimal artifact used to make the Paper 2 assumptions
+inspectable.
+
+## What This Draft Does Not Claim
+
+- It does not claim broad empirical superiority.
+- It does not claim convergence for unrestricted generated output.
+- It does not include real user data or operational data.
+- It does not depend on a product system.
+- It does not claim that every finite sample curve decreases monotonically.
+
+## Suggested Review Questions
+
+1. Are the assumptions of the variance theorem explicit enough?
+2. Is the mapping from checked records to finite concept coordinates clear?
+3. Is the relationship between the Paper 1 artifact and Paper 2 theory
+   understandable?
+4. Is the proposed synthetic convergence experiment sufficient as a next
+   validation step?
+5. Should this remain a public white paper, or is it ready to become an
+   arXiv-style technical note after adding the synthetic convergence experiment?
