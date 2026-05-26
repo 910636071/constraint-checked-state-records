@@ -58,48 +58,40 @@ The paper does not claim:
 - production readiness;
 - real-user validation.
 
-## 2. Core Objects
+## 2. Formal Objects
 
-### 2.1 Finite Concept Space
+This section fixes the symbols used by the theorem. The definitions are kept
+small on purpose: the claim is about a finite bounded estimator, not about a
+complete application architecture.
 
-Let
+**Definition 1 (Finite concept space).** Let
 
 ```text
-K = {k_1, ..., k_n}
+K = {k_1, ..., k_n},    n = |K| < infinity
 ```
 
-be a finite concept type space. Each `k_j` is a typed symbolic coordinate.
-The finite dimension `n = |K|` is fixed before evaluation.
+be a finite concept coordinate space. Each `k_j` is a typed symbolic coordinate.
+The dimension `n` is fixed before evaluation.
 
-A typed concept record is a bounded symbolic record:
+**Definition 2 (Typed symbolic record).** A typed record at step `t` is
 
 ```text
 o_t = (id_t, type_t, value_t, source_t, time_t)
 ```
 
-where:
+where `type_t in K`, `value_t` is bounded, `source_t` identifies the accepted
+observation that produced the record, and `time_t` is an ordering index. The
+important restriction is that `type_t` must land in `K`; a typed record is not a
+free text label.
 
-- `id_t` is a record identifier;
-- `type_t in K`;
-- `value_t` is a bounded symbolic or numeric value;
-- `source_t` identifies the accepted observation that produced it;
-- `time_t` is an ordering index.
-
-The key restriction is that typed concept records are not free text labels. They must
-land in the finite type space `K`.
-
-### 2.2 Constraint Set
-
-Let
+**Definition 3 (Constraint set).** Let
 
 ```text
 C = (C_allow, C_deny, C_required)
 ```
 
 be a finite explicit constraint set. A typed candidate may be committed only if
-it satisfies the active finite constraints.
-
-In the simplest Boolean form:
+it satisfies the active finite constraints. In the simplest Boolean form:
 
 ```text
 pass_C(o_t) =
@@ -111,16 +103,14 @@ pass_C(o_t) =
 The exact required predicate may vary by case, but it must be finite and
 inspectable.
 
-### 2.3 Append-only Event Sequence
-
-Let
+**Definition 4 (Append-only event sequence).** Let
 
 ```text
 E_t = (e_1, ..., e_t)
 ```
 
 be the authoritative append-only event sequence before step `t + 1`. Each
-committed event stores a validated record, a typed concept record, the applied
+committed event stores a validated record, a typed record, the applied
 constraint set, and the interface decision.
 
 The event sequence maintains five invariants:
@@ -131,62 +121,38 @@ The event sequence maintains five invariants:
 4. Downstream expression output cannot mutate the event sequence directly.
 5. Rejected records cannot enter the empirical estimator.
 
-These invariants separate authoritative symbolic state from derived summaries
-or expression-layer output.
+## 3. Formal Interfaces
 
-## 3. Interface Semantics
+Paper 2 uses three explicit interfaces. They are written as functions so that
+the assumptions can be checked independently of any implementation.
 
-Paper 2 uses three explicit interfaces. They are written as functions so that the
-architecture can be checked independently of any implementation.
-
-### 3.1 Validation Interface
+**Definition 5 (Validation interface).** Let `R` be the set of raw symbolic
+records. The validation interface is
 
 ```text
-V(r_t) -> {valid, rejected}
+V: R -> {valid, rejected}.
 ```
 
-`r_t` is a raw symbolic record. The validation interface accepts a record only if
-it satisfies basic structural requirements, such as required fields,
-type-compatible fields, and admissible source metadata. A rejected record stops
-here.
+If `V(r_t) = rejected`, then `r_t` cannot be appended to `E_t`.
 
-Invariant:
+**Definition 6 (Typing interface).** Let `P` be the set of validated symbolic
+payloads. The typing interface is
 
 ```text
-V(r_t) = rejected  =>  r_t notin E_t.
+T: P -> K union {rejected}.
 ```
 
-### 3.2 Typing Interface
+If `T(p_t) = k`, then `k in K`. This is the finite-space restriction: arbitrary
+text labels cannot become authoritative concept coordinates.
+
+**Definition 7 (Commitment interface).** Let `Z` be the set of typed candidate
+records. The commitment interface is evaluated as
 
 ```text
-T(p_t) -> K union {rejected}
+J(z_t, C, E_t) -> {committed, pending_review, rejected}.
 ```
 
-`p_t` is a parsed symbolic payload derived from a valid record. The typing
-interface maps the payload to a finite concept type in `K`. If no finite type is
-available, the payload is rejected.
-
-Invariant:
-
-```text
-T(p_t) = k  =>  k in K.
-```
-
-This interface is the finite-space restriction. It prevents arbitrary text labels
-from becoming authoritative concept coordinates.
-
-### 3.3 Commitment Interface
-
-```text
-J(z_t, C, E_t) -> {committed, pending_review, rejected}
-```
-
-`z_t` is a typed candidate record, `C` is the active constraint set, and `E_t` is
-the event sequence state before the decision. The commitment interface checks
-the typed candidate against explicit constraints and the current authoritative
-state.
-
-Invariant:
+The commitment condition is
 
 ```text
 J(z_t, C, E_t) = committed  =>  pass_C(z_t) = true.
@@ -198,28 +164,31 @@ authoritative concept state.
 
 ## 4. Empirical Concept Estimator
 
-Let
+**Definition 8 (Accepted observation sequence).** Let
 
 ```text
 B_m = (b_1, ..., b_m)
 ```
 
-be the accepted observations after passing through validation, typing, and
-commitment interfaces.
+be the sequence of committed observations after validation, typing, and
+commitment.
 
-Each committed observation is mapped to a bounded concept vector:
+**Definition 9 (Vector estimator).** Let `B` be the set of possible committed
+observations, and let
 
 ```text
-phi(b_i) = X_i in [0, 1]^n.
+phi: B -> [0, 1]^n
+X_i = phi(b_i).
 ```
 
-The empirical concept state is
+The empirical concept estimate is
 
 ```text
 C_m = (1/m) sum_{i=1}^m X_i.
 ```
 
-For scalar interface outcomes or scores, let
+**Definition 10 (Scalar estimator).** For scalar interface outcomes or scores,
+let
 
 ```text
 Y_i in [0, M]
@@ -234,6 +203,31 @@ mu_hat_m = (1/m) sum_{i=1}^m Y_i.
 The scalar estimator `mu_hat_m` is the cleanest object for the first theorem.
 The vector estimator `C_m` gives the corresponding finite concept-space
 version.
+
+### 4.1 Symbol Consistency
+
+The theorem uses the following symbols consistently:
+
+| Symbol | Meaning |
+| --- | --- |
+| `K` | finite concept coordinate space |
+| `n` | dimension `|K|` |
+| `C` | finite explicit constraint set |
+| `E_t` | append-only event sequence at step `t` |
+| `V` | validation interface |
+| `T` | typing interface |
+| `J` | commitment interface |
+| `B_m` | committed observation sequence of length `m` |
+| `phi` | map from committed observations to bounded concept vectors |
+| `X_i` | bounded concept vector in `[0,1]^n` |
+| `C_m` | empirical concept estimate |
+| `Y_i` | bounded scalar committed signal in `[0,M]` |
+| `mu_hat_m` | empirical scalar mean |
+| `E` | downstream measurement map in `E(C_m)` |
+
+The symbol `E_t` always denotes the event sequence. The symbol `E` without a
+time subscript denotes the downstream measurement map used in the vector
+variance bound.
 
 ## 5. Main Theorem
 

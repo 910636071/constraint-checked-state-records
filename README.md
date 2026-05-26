@@ -100,6 +100,7 @@ python -m scripts.run_pilot --cases data/cases_small.jsonl --runs 10 --methods s
 python -m scripts.export_summary --input outputs/pilot_runs.jsonl --out outputs/summary_agg.csv
 python -m pytest -q
 python -m scripts.term_scan
+python -m scripts.check_paper2_symbols
 ```
 
 ## Expected Outputs / 预期输出
@@ -113,6 +114,8 @@ python -m scripts.term_scan
   `python -m pytest -q` 通过。
 - `python -m scripts.term_scan` passes.  
   `python -m scripts.term_scan` 通过。
+- `python -m scripts.check_paper2_symbols` passes.
+  `python -m scripts.check_paper2_symbols` 通过。
 
 ## Non-goals / 非目标
 
