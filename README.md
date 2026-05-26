@@ -4,6 +4,9 @@ Author: Lijie Wang, Independent Researcher
 Date: May 2026  
 Contact: wanglijie100@gmail.com
 
+*English-first bilingual README. Chinese annotations follow each section for a
+parallel audience.*
+
 Clean-room minimal artifact for a constraint-checked symbolic pipeline over
 normalized records.
 
@@ -42,6 +45,15 @@ module boundary.
 3. A pilot comparison showing score and pass-rate tradeoffs under the same
    checked-record protocol.  
    在同一 checked-record 协议下展示 score 和 pass-rate 的 tradeoff。
+
+## Paper 2 Theory Draft / Paper 2 理论草稿
+
+`paper/paper2_finite_concept_filling.md` contains a finite-space variance bound
+and abstract interface semantics that extend this artifact's
+constraint-checking protocol.
+
+`paper/paper2_finite_concept_filling.md` 包含有限空间方差界和抽象接口语义，用于扩展本
+artifact 的约束检查协议。
 
 ## Repository Structure / 仓库结构
 
@@ -116,8 +128,8 @@ python -m scripts.term_scan
   不使用真实用户数据。
 - No content derived from document files.  
   不使用来自文档文件的内容。
-- No deployment logic.  
-  不包含部署逻辑。
+- No operational integration logic.
+  不包含运行集成逻辑。
 
 ## Limitations / 局限
 
@@ -137,12 +149,6 @@ commands and are not required as hand-authored source material.
 
 公开发布边界包括：归一化 case bank、确定性管线代码、聚合 CSV、测试、term scan、README、许可证和
 paper notes。生成的 checked records 可以通过仓库命令重新生成，不需要作为手写源材料维护。
-
-## arXiv Endorsement / arXiv 推荐材料
-
-For arXiv endorsement preparation, see `paper/arxiv_endorsement.md`.
-
-arXiv endorsement / 推荐申请材料，见 `paper/arxiv_endorsement.md`。
 
 ## Review Positioning / 评审定位
 
@@ -180,6 +186,26 @@ convergence. The public review object is closed around four finite interfaces:
 2. 确定性的状态构造和候选生成；
 3. 有限显式约束检查；
 4. 聚合评分和约束失败摘要。
+
+## Paper 2 Boundary / Paper 2 边界
+
+`paper/paper2_finite_concept_filling.md` is a separate theory white paper draft.
+It does not change the Paper 1 artifact protocol. Paper 1 remains the minimal
+reproducible evidence boundary; Paper 2 states a finite concept-space variance
+bound over typed records, explicit constraints, append-only event sequences, and
+three-stage formal maps.
+
+The Paper 2 draft does not include downstream expression experiments, external
+service calls, operational data, unrestricted-output variance claims, or later
+empirical validation. Those are outside the current repository boundary until
+explicitly added later.
+
+`paper/paper2_finite_concept_filling.md` 是独立的理论白皮书草稿，不改变 Paper 1 的
+artifact 协议。Paper 1 仍然是最小可复现证据边界；Paper 2 只陈述有限概念空间、
+类型化记录、显式约束、append-only event sequences 和三阶段形式映射下的方差界。
+
+Paper 2 草稿不包含下游表达实验、外部服务调用、运行数据、非受限输出方差声明或后续经验验证。
+这些内容在明确加入之前都不属于当前仓库边界。
 
 ## License / 许可证
 

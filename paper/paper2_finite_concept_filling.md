@@ -1,6 +1,6 @@
 # Paper 2 White Paper Draft
 
-Title: Variance Decay in Constraint-Gated Symbolic State Records
+Title: Variance Decay for Finite Constraint-Checked Symbolic Estimators
 
 Author: Lijie Wang, Independent Researcher
 
@@ -12,8 +12,8 @@ Status: v0.2 theory white paper draft
 
 This note gives a formal path for studying rule-guided behavior distillation in
 a finite symbolic concept space. The central claim is deliberately narrow: if
-accepted behavior observations are mapped into a finite ConceptObject space
-through explicit gates and finite constraints, then the variance of the
+accepted observations are mapped into a finite concept space through explicit
+validation, typing, and commitment interfaces, then the variance of the
 empirical concept estimate decays with sample size. If a downstream expression
 map is deterministic or Lipschitz-bounded with respect to that concept estimate,
 then the expression representation inherits a corresponding variance bound.
@@ -46,9 +46,9 @@ r_t -> s_t -> p_t -> z_t -> q
 
 Paper 2 moves one level upward. It asks whether repeated behavior observations
 can fill a finite concept space in a way that makes the empirical state estimate
-stable. It does not require deployment data. It does not claim stability for
-unrestricted language-model output. It studies a finite symbolic estimator and
-the conditions under which downstream expression variance can be bounded.
+stable. It does not require operational data. It does not claim stability for
+unrestricted generated output. It studies a finite symbolic estimator and the
+conditions under which a downstream measurement representation can be bounded.
 
 The paper does not claim:
 
@@ -60,7 +60,7 @@ The paper does not claim:
 
 ## 2. Core Objects
 
-### 2.1 ConceptObject Space
+### 2.1 Finite Concept Space
 
 Let
 
@@ -68,10 +68,10 @@ Let
 K = {k_1, ..., k_n}
 ```
 
-be a finite ConceptObject type space. Each `k_j` is a typed symbolic coordinate.
+be a finite concept type space. Each `k_j` is a typed symbolic coordinate.
 The finite dimension `n = |K|` is fixed before evaluation.
 
-A ConceptObject is a typed record:
+A typed concept record is a bounded symbolic record:
 
 ```text
 o_t = (id_t, type_t, value_t, source_t, time_t)
@@ -85,10 +85,10 @@ where:
 - `source_t` identifies the accepted observation that produced it;
 - `time_t` is an ordering index.
 
-The key restriction is that ConceptObjects are not free text labels. They must
+The key restriction is that typed concept records are not free text labels. They must
 land in the finite type space `K`.
 
-### 2.2 ConstraintSet
+### 2.2 Constraint Set
 
 Let
 
@@ -96,7 +96,7 @@ Let
 C = (C_allow, C_deny, C_required)
 ```
 
-be a finite explicit ConstraintSet. A typed candidate may be committed only if
+be a finite explicit constraint set. A typed candidate may be committed only if
 it satisfies the active finite constraints.
 
 In the simplest Boolean form:
@@ -111,7 +111,7 @@ pass_C(o_t) =
 The exact required predicate may vary by case, but it must be finite and
 inspectable.
 
-### 2.3 EventLog
+### 2.3 Append-only Event Sequence
 
 Let
 
@@ -119,78 +119,80 @@ Let
 E_t = (e_1, ..., e_t)
 ```
 
-be the authoritative append-only EventLog before step `t + 1`. Each committed
-event stores a validated record, a typed ConceptObject, the applied
-ConstraintSet, and the gate decision.
+be the authoritative append-only event sequence before step `t + 1`. Each
+committed event stores a validated record, a typed concept record, the applied
+constraint set, and the interface decision.
 
-The EventLog maintains five invariants:
+The event sequence maintains five invariants:
 
-1. EventLog is append-only.
-2. Committed ConceptObjects must pass JudgementGate.
+1. The event sequence is append-only.
+2. Committed typed records must pass the commitment interface.
 3. Summaries are non-authoritative projections.
-4. LLM-generated or rendered text cannot mutate EventLog directly.
-5. Rejected records cannot enter the authoritative state.
+4. Downstream expression output cannot mutate the event sequence directly.
+5. Rejected records cannot enter the empirical estimator.
 
 These invariants separate authoritative symbolic state from derived summaries
 or expression-layer output.
 
-## 3. Gate Semantics
+## 3. Interface Semantics
 
-Paper 2 uses three explicit gates. They are written as functions so that the
+Paper 2 uses three explicit interfaces. They are written as functions so that the
 architecture can be checked independently of any implementation.
 
-### 3.1 AssetGate
+### 3.1 Validation Interface
 
 ```text
-G_A(r_t) -> {valid, rejected}
+V(r_t) -> {valid, rejected}
 ```
 
-`r_t` is a raw symbolic record. AssetGate accepts a record only if it satisfies
-basic structural requirements, such as required fields, type-compatible fields,
-and admissible source metadata. A rejected record stops here.
+`r_t` is a raw symbolic record. The validation interface accepts a record only if
+it satisfies basic structural requirements, such as required fields,
+type-compatible fields, and admissible source metadata. A rejected record stops
+here.
 
 Invariant:
 
 ```text
-G_A(r_t) = rejected  =>  r_t notin E_t.
+V(r_t) = rejected  =>  r_t notin E_t.
 ```
 
-### 3.2 TaxonomyGate
+### 3.2 Typing Interface
 
 ```text
-G_T(p_t) -> K union {rejected}
+T(p_t) -> K union {rejected}
 ```
 
-`p_t` is a parsed symbolic payload derived from a valid record. TaxonomyGate
-maps the payload to a finite ConceptObject type in `K`. If no finite type is
+`p_t` is a parsed symbolic payload derived from a valid record. The typing
+interface maps the payload to a finite concept type in `K`. If no finite type is
 available, the payload is rejected.
 
 Invariant:
 
 ```text
-G_T(p_t) = k  =>  k in K.
+T(p_t) = k  =>  k in K.
 ```
 
-This gate is the finite-space restriction. It prevents arbitrary text labels
+This interface is the finite-space restriction. It prevents arbitrary text labels
 from becoming authoritative concept coordinates.
 
-### 3.3 JudgementGate
+### 3.3 Commitment Interface
 
 ```text
-G_J(z_t, C, E_t) -> {committed, pending_review, rejected}
+J(z_t, C, E_t) -> {committed, pending_review, rejected}
 ```
 
-`z_t` is a typed candidate ConceptObject, `C` is the active ConstraintSet, and
-`E_t` is the EventLog state before the decision. JudgementGate checks the typed
-candidate against explicit constraints and the current authoritative state.
+`z_t` is a typed candidate record, `C` is the active constraint set, and `E_t` is
+the event sequence state before the decision. The commitment interface checks
+the typed candidate against explicit constraints and the current authoritative
+state.
 
 Invariant:
 
 ```text
-G_J(z_t, C, E_t) = committed  =>  pass_C(z_t) = true.
+J(z_t, C, E_t) = committed  =>  pass_C(z_t) = true.
 ```
 
-Only committed ConceptObjects enter the empirical state estimator. Pending or
+Only committed typed records enter the empirical state estimator. Pending or
 rejected candidates can be logged for inspection, but they do not update the
 authoritative concept state.
 
@@ -202,8 +204,8 @@ Let
 B_m = (b_1, ..., b_m)
 ```
 
-be the accepted behavior observations after passing through AssetGate,
-TaxonomyGate, and JudgementGate.
+be the accepted observations after passing through validation, typing, and
+commitment interfaces.
 
 Each committed observation is mapped to a bounded concept vector:
 
@@ -217,7 +219,7 @@ The empirical concept state is
 C_m = (1/m) sum_{i=1}^m X_i.
 ```
 
-For scalar gate outcomes or scores, let
+For scalar interface outcomes or scores, let
 
 ```text
 Y_i in [0, M]
@@ -230,7 +232,7 @@ mu_hat_m = (1/m) sum_{i=1}^m Y_i.
 ```
 
 The scalar estimator `mu_hat_m` is the cleanest object for the first theorem.
-The vector estimator `C_m` gives the corresponding finite ConceptObject-space
+The vector estimator `C_m` gives the corresponding finite concept-space
 version.
 
 ## 5. Main Theorem
@@ -239,8 +241,8 @@ version.
 
 Assume:
 
-1. The ConceptObject type space `K` is finite.
-2. The ConstraintSet `C` is fixed and explicit during evaluation.
+1. The concept type space `K` is finite.
+2. The constraint set `C` is fixed and explicit during evaluation.
 3. Accepted observations are independent and identically distributed, or satisfy
    an equivalent bounded weak-dependence condition.
 4. Each committed scalar signal satisfies `0 <= Y_i <= M`.
@@ -337,6 +339,13 @@ Taking expectations and bounding variance by mean squared distance to the fixed
 center `E(theta)` yields
 
 ```text
+Var(Z) <= Expect ||Z - c||^2 for any constant c,
+```
+
+because total variance is minimized at `c = Expect[Z]`. Choosing
+`c = E(theta)` gives
+
+```text
 Var(Z_m) <= L^2 n / (4m).
 ```
 
@@ -376,7 +385,8 @@ In Paper 2 terms:
 - `SyntheticCase` provides normalized symbolic records.
 - `TraceStore` gives the ordered observation substrate.
 - `Baselines` provide candidate-generation rules.
-- `ConstraintCheck` is the minimal finite-check analogue of JudgementGate.
+- `ConstraintCheck` is the minimal finite-check analogue of the commitment
+  interface.
 - `ScoreCard` reports aggregate checked-record statistics.
 
 Paper 1 does not prove variance decay. It provides minimal evidence that a
@@ -388,14 +398,14 @@ The connection is therefore:
 
 ```text
 Paper 1 = minimal reproducible evidence for checked-record separation.
-Paper 2 = formal variance bound for finite gated concept estimates.
+Paper 2 = formal variance bound for finite constraint-checked concept estimates.
 ```
 
 ## 8. Synthetic Convergence Experiment
 
-Paper 2 can add a synthetic convergence experiment without deployment data. The
+Paper 2 can add a synthetic convergence experiment without operational data. The
 experiment should demonstrate the theorem's measurement objects, not claim
-production validity.
+external validity.
 
 Suggested variables:
 
@@ -432,8 +442,7 @@ be a formal context where:
 
 - `G` is the set of accepted observations or episodes;
 - `M` is the set of typed attributes, identified with `K`;
-- `I subset G x M` is the incidence relation induced by committed
-  ConceptObjects.
+- `I subset G x M` is the incidence relation induced by committed typed records.
 
 For `g in G` and `k in K`,
 
@@ -462,16 +471,16 @@ A' = D
 D' = A.
 ```
 
-This mapping supports the claim that ConceptObject coordinates are finite,
+This mapping supports the claim that concept coordinates are finite,
 checkable, and composable. It does not claim to replace FCA or extend FCA as a
 mathematical theory.
 
-## 10. Relationship to Paper 3
+## 10. Future Empirical Validation
 
-Paper 3 should test whether a renderer or system-level expression layer follows
-the variance trend under scripted behavior streams. Paper 3 may measure
-`Var(E(C_m))` empirically, but it should inherit the assumptions and definitions
-from Paper 2:
+A later empirical study may test whether a downstream measurement layer follows
+the variance trend under scripted or synthetic behavior streams. Such a study
+may measure `Var(E(C_m))` empirically, but it should inherit the assumptions and
+definitions from Paper 2:
 
 - fixed finite concept space;
 - fixed measurement representation;
@@ -484,10 +493,10 @@ from Paper 2:
 The theory depends on finite concept dimension, bounded outcomes, explicit
 constraints, and independence or weak-dependence assumptions. If behavior
 samples are adversarial, nonstationary, or contradictory, the bound may not
-describe the observed process. If the expression map is an unrestricted
-stochastic text generator, raw text variance is not controlled without an
-additional measurement map and stability assumption.
+describe the observed process. If the expression map is unrestricted or
+stochastic, output variance is not controlled without an additional measurement
+map and stability assumption.
 
 The result should therefore be read as a formal bound for finite
-constraint-gated symbolic state records, not as a general statement about all
+constraint-checked symbolic estimators, not as a general statement about all
 generative systems.
