@@ -65,6 +65,9 @@ module boundary.
   中文最小形式化表达。
 - `paper/research_agenda.md`: working research agenda for the second paper.  
   第二篇论文的研究推进提纲。
+- `paper/paper2_finite_concept_filling.md`: separate Paper 2 theory white
+  paper draft.
+  独立的 Paper 2 理论白皮书草稿。
 
 ## Reproduce / 复现
 

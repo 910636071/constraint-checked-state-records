@@ -57,3 +57,11 @@ behavior, or deployment behavior.
    arXiv-style technical note.
 4. If expanded later, add stronger baselines or larger symbolic case banks only
    as v0.2 work.
+
+## Paper 2 Theory Track
+
+The separate Paper 2 white paper draft is
+`paper/paper2_finite_concept_filling.md`. It should remain separate from the
+Paper 1 artifact claim. Paper 2 studies a finite concept-filling variance bound
+for constrained symbolic expression. It does not depend on deployment data and
+should not change the frozen Paper 1 protocol.
