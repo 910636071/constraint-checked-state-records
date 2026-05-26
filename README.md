@@ -52,8 +52,13 @@ module boundary.
 and abstract interface semantics that extend this artifact's
 constraint-checking protocol.
 
+Researchers reviewing this direction can start from
+`paper/reviewer_guide.md`.
+
 `paper/paper2_finite_concept_filling.md` 包含有限空间方差界和抽象接口语义，用于扩展本
 artifact 的约束检查协议。
+
+评审该方向时，可以先阅读 `paper/reviewer_guide.md`。
 
 ## Repository Structure / 仓库结构
 
@@ -77,6 +82,8 @@ artifact 的约束检查协议。
   中文最小形式化表达。
 - `paper/research_agenda.md`: working research agenda for the second paper.  
   第二篇论文的研究推进提纲。
+- `paper/reviewer_guide.md`: one-page guide for external reviewers.
+  给外部评审者的一页入口说明。
 - `paper/paper2_finite_concept_filling.md`: separate Paper 2 theory white
   paper draft.
   独立的 Paper 2 理论白皮书草稿。
