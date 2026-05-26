@@ -16,6 +16,27 @@ of whether bounded observations, finite concept coordinates, explicit
 constraints, and an append-only event sequence are sufficient to support a
 variance-decay statement for an empirical symbolic estimator.
 
+## Concrete Evaluation Setting
+
+The motivating setting is a small scripted game-agent evaluation protocol:
+
+```text
+scripted event stream
+  -> candidate state records
+  -> constraint check
+  -> committed symbolic state
+  -> later behavior or expression measurement
+```
+
+The purpose of the abstraction is to avoid treating persistent agent state as an
+uncontrolled text summary. Instead, event records must pass explicit checks
+before they enter committed state. Later consistency or expression measurements
+can then be defined against that committed symbolic state.
+
+This draft does not include a full game environment. The concrete setting is a
+controlled evaluation scaffold for making the state-update assumptions
+auditable.
+
 ## Current Review Target
 
 The current review target is:

@@ -10,7 +10,14 @@ parallel audience.*
 Clean-room minimal artifact for a constraint-checked symbolic pipeline over
 normalized records.
 
+Motivating setting: a small scripted game-agent evaluation protocol where event
+records are checked before entering committed symbolic state, and later behavior
+or expression can be measured against that committed state.
+
 本仓库是一个 clean-room 的最小学术 artifact，用于归一化符号记录和约束检查后的聚合评分。
+
+动机场景：一个小型 scripted game-agent evaluation protocol，其中事件记录必须经过检查后才能进入
+committed symbolic state，后续行为或表达再围绕该已提交状态进行测量。
 
 The pipeline is:
 
@@ -53,12 +60,14 @@ and abstract interface semantics that extend this artifact's
 constraint-checking protocol.
 
 Researchers reviewing this direction can start from
-`REVIEWER_GUIDE.md`.
+`REVIEWER_GUIDE.md`. A Chinese review version is available at
+`REVIEWER_GUIDE.zh.md`.
 
 `paper/paper2_finite_concept_filling.md` 包含有限空间方差界和抽象接口语义，用于扩展本
 artifact 的约束检查协议。
 
-评审该方向时，可以先阅读 `REVIEWER_GUIDE.md`。
+评审该方向时，可以先阅读 `REVIEWER_GUIDE.md`。中文审阅版见
+`REVIEWER_GUIDE.zh.md`。
 
 ## Repository Structure / 仓库结构
 
@@ -84,6 +93,8 @@ artifact 的约束检查协议。
   第二篇论文的研究推进提纲。
 - `REVIEWER_GUIDE.md`: one-page guide for external reviewers.
   给外部评审者的一页入口说明。
+- `REVIEWER_GUIDE.zh.md`: Chinese review version.
+  中文审阅辅助说明。
 - `paper/paper2_finite_concept_filling.md`: separate Paper 2 theory white
   paper draft.
   独立的 Paper 2 理论白皮书草稿。
