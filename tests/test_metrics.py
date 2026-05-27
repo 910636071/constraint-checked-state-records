@@ -1,7 +1,7 @@
 import pytest
 
 from baseline_suite import METHODS
-from scripts.make_cases import build_cases
+from scripts.make_cases import build_cases, build_edge_cases
 from scripts.run_pilot import run_pilot
 from score_card import score_records
 
@@ -44,3 +44,19 @@ def test_convergence_var_mu_hat_decreases():
         m = summary["runs"]
         var_mu_hats.append(summary["var_q"] / m)
     assert var_mu_hats[0] > var_mu_hats[1] > var_mu_hats[2]
+
+
+def test_edge_case_pilot_metric_bounds():
+    cases = build_edge_cases()
+    records = list(run_pilot(cases, METHODS, 5))
+    assert len(records) == len(cases) * len(METHODS) * 5
+    summary = score_records(records)
+    assert 0.0 <= summary["avg_q"]
+    assert 0.0 <= summary["pass_rate"] <= 1.0
+
+
+def test_edge_case_pilot_nonzero_pass_rate():
+    cases = build_edge_cases()
+    records = list(run_pilot(cases, METHODS, 10))
+    summary = score_records(records)
+    assert summary["pass_rate"] > 0.0

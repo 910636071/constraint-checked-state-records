@@ -8,6 +8,7 @@ from constraint_check import check_plan
 from plan_builder import build_plan
 from score_card import score_records
 from scripts.export_summary import export_summary, read_jsonl
+from scripts.make_cases import build_edge_cases
 from scripts.term_scan import blocked_terms, scan
 from state_builder import build_state, empty_state
 from text_driver import normalize_plan
@@ -550,3 +551,138 @@ class TestTermScan:
         # Each exempted term must be a real blocked term — exemptions must cover genuine hits
         from scripts.term_scan import PAPER2_ALLOWED_TERMS
         assert PAPER2_ALLOWED_TERMS.issubset(set(blocked_terms()))
+
+
+# ---------------------------------------------------------------------------
+# state_builder — extreme weight values (0.0 and 1.0)
+# ---------------------------------------------------------------------------
+
+
+class TestStateBuilderEdgeWeights:
+    def test_zero_weight_yields_zero_score(self):
+        s = build_state(empty_state(), _trace("t0", weight=0.0, decay=0.0))
+        assert s["scores"]["family_alpha"] == pytest.approx(0.0)
+        assert s["record_count"] == 1
+
+    def test_unit_weight_yields_unit_score(self):
+        s = build_state(empty_state(), _trace("t0", weight=1.0, decay=0.0))
+        assert s["scores"]["family_alpha"] == pytest.approx(1.0)
+
+    def test_zero_weight_then_positive_accumulates(self):
+        s = empty_state()
+        s = build_state(s, _trace("t0", weight=0.0, decay=0.0))
+        s = build_state(s, _trace("t1", weight=0.9, decay=0.0))
+        assert s["scores"]["family_alpha"] == pytest.approx(0.9)
+
+
+# ---------------------------------------------------------------------------
+# state_builder — extreme decay values (0.0 and 1.0)
+# ---------------------------------------------------------------------------
+
+
+class TestStateBuilderEdgeDecays:
+    def test_zero_decay_accumulates_exactly(self):
+        s = empty_state()
+        for i in range(3):
+            s = build_state(s, _trace(f"t{i}", weight=0.9, decay=0.0))
+        assert s["scores"]["family_alpha"] == pytest.approx(2.7)
+
+    def test_full_decay_zeros_other_kinds(self):
+        s = empty_state()
+        s = build_state(s, _trace("t0", state_kind="family_alpha", weight=0.9, decay=0.0))
+        s = build_state(s, _trace("t1", state_kind="family_beta", weight=0.9, decay=1.0))
+        assert s["scores"]["family_alpha"] == pytest.approx(0.0)
+        assert s["scores"]["family_beta"] == pytest.approx(0.9)
+
+    def test_full_decay_on_same_kind_zeros_then_adds(self):
+        s = empty_state()
+        s = build_state(s, _trace("t0", state_kind="family_alpha", weight=0.9, decay=0.0))
+        s = build_state(s, _trace("t1", state_kind="family_alpha", weight=0.5, decay=1.0))
+        # 0.9 * (1 - 1.0) + 0.5 = 0.0 + 0.5 = 0.5
+        assert s["scores"]["family_alpha"] == pytest.approx(0.5)
+
+
+# ---------------------------------------------------------------------------
+# constraint_check — edge list shapes (empty allow/deny/must_match, multi-must)
+# ---------------------------------------------------------------------------
+
+
+class TestConstraintCheckEdgeLists:
+    def test_empty_deny_list_never_denies(self):
+        case = _minimal_case(allow=("family_alpha", "family_beta"), deny=(), must=("family_alpha",))
+        result = check_plan(_minimal_plan("family_alpha"), case)
+        assert result["deny_hit"] is False
+        assert result["passed"] is True
+
+    def test_empty_allow_list_always_fails(self):
+        case = _minimal_case(allow=(), deny=(), must=("family_alpha",))
+        result = check_plan(_minimal_plan("family_alpha"), case)
+        assert result["allow_hit"] is False
+        assert result["passed"] is False
+
+    def test_empty_must_match_always_fails(self):
+        case = _minimal_case(allow=("family_alpha",), deny=(), must=())
+        result = check_plan(_minimal_plan("family_alpha"), case)
+        assert result["must_hit"] is False
+        assert result["passed"] is False
+
+    def test_multi_item_must_match_any_one_passes(self):
+        case = _minimal_case(
+            allow=("family_alpha", "family_beta"),
+            deny=(),
+            must=("family_alpha", "family_beta"),
+        )
+        for kind in ("family_alpha", "family_beta"):
+            result = check_plan(_minimal_plan(kind), case)
+            assert result["must_hit"] is True
+            assert result["passed"] is True
+
+
+# ---------------------------------------------------------------------------
+# plan_builder — tie-breaking: equal scores sorted alphabetically
+# ---------------------------------------------------------------------------
+
+
+class TestPlanBuilderTieBreak:
+    def test_equal_scores_alphabetical_tiebreak(self):
+        state = {
+            "scores": {"family_gamma": 1.0, "family_alpha": 1.0, "family_beta": 1.0},
+            "last_trace": "t0",
+            "record_count": 3,
+        }
+        case = _minimal_case(allow=("family_alpha", "family_beta", "family_gamma"))
+        plan = build_plan(state, case, "summary_loop", 0)
+        # sorted by (-score, name): all scores equal → alphabetical: alpha < beta < gamma
+        assert plan["state_kind"] == "family_alpha"
+
+
+# ---------------------------------------------------------------------------
+# build_edge_cases — validation and end-to-end score assertions
+# ---------------------------------------------------------------------------
+
+
+class TestMakeCasesEdge:
+    def test_all_edge_cases_validate(self):
+        for case in build_edge_cases():
+            validate_case(case)
+
+    def test_edge_case_zero_weight_end_to_end(self):
+        edge_000 = next(c for c in build_edge_cases() if c["case_id"] == "edge_000")
+        result = run_method(edge_000, "summary_loop", 0)
+        assert result["score"] == pytest.approx(0.0)
+        assert result["passed"] is True
+
+    def test_edge_case_accumulation_end_to_end(self):
+        edge_002 = next(c for c in build_edge_cases() if c["case_id"] == "edge_002")
+        result = run_method(edge_002, "summary_loop", 0)
+        # 3 traces × weight=0.9 × decay=0.0 → 2.7
+        assert result["score"] == pytest.approx(2.7)
+        assert result["passed"] is True
+
+    def test_edge_case_full_decay_end_to_end(self):
+        edge_003 = next(c for c in build_edge_cases() if c["case_id"] == "edge_003")
+        result = run_method(edge_003, "summary_loop", 0)
+        # family_alpha zeroed by decay=1.0; family_beta wins
+        assert result["state_kind"] == "family_beta"
+        assert result["score"] == pytest.approx(0.9)
+        assert result["passed"] is True
