@@ -28,7 +28,7 @@ FIELDNAMES = [
 ]
 
 
-def run_all(scenarios, seed, runs):
+def run_all(scenarios, seed, runs, use_real_llm=False):
     rows = []
     for scenario in scenarios:
         name = scenario["name"]
@@ -38,8 +38,14 @@ def run_all(scenarios, seed, runs):
             "template_only",  name, run_template_only(scenario)))
         rows.append(compute_metrics(
             "typed_templates", name, run_typed_templates(scenario)))
-        rows.append(compute_metrics(
-            "typed_llm_sim",  name, run_typed_llm_sim(scenario, seed, runs)))
+
+        if use_real_llm:
+            from eval.conditions_llm import run_typed_llm_real
+            llm_results = run_typed_llm_real(scenario, runs=min(runs, 5))
+            rows.append(compute_metrics("typed_llm_real", name, llm_results))
+        else:
+            rows.append(compute_metrics(
+                "typed_llm_sim", name, run_typed_llm_sim(scenario, seed, runs)))
     return rows
 
 
@@ -48,9 +54,12 @@ def main():
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--runs", type=int, default=20)
     parser.add_argument("--out", default="outputs/eval_results.csv")
+    parser.add_argument("--use-real-llm", action="store_true",
+                        help="Replace typed_llm_sim with real Claude API calls "
+                             "(requires ANTHROPIC_API_KEY)")
     args = parser.parse_args()
 
-    rows = run_all(SCENARIOS, args.seed, args.runs)
+    rows = run_all(SCENARIOS, args.seed, args.runs, args.use_real_llm)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
