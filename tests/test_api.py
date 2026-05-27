@@ -1,9 +1,14 @@
+import json
+
 import pytest
 
 from baseline_suite import METHODS, run_method
+from case_bank import load_cases, validate_case
 from constraint_check import check_plan
 from plan_builder import build_plan
 from score_card import score_records
+from scripts.export_summary import export_summary, read_jsonl
+from scripts.term_scan import blocked_terms, scan
 from state_builder import build_state, empty_state
 from text_driver import normalize_plan
 from trace_store import build_trace_store, iter_records
@@ -367,3 +372,164 @@ class TestRunMethod:
         for method in METHODS:
             result = run_method(case, method, 0)
             assert result["score"] >= 0.0
+
+
+# ---------------------------------------------------------------------------
+# case_bank.validate_case — error paths
+# ---------------------------------------------------------------------------
+
+
+class TestValidateCase:
+    def _valid(self):
+        return {
+            "case_id": "case_000",
+            "allow_list": ["family_alpha"],
+            "deny_list": [],
+            "must_match": ["family_alpha"],
+            "traces": [
+                {
+                    "trace_id": "t0",
+                    "signal_kind": "signal_a",
+                    "agent_x": "agent_a",
+                    "agent_y": "agent_b",
+                    "tick": 1,
+                    "attrs": {
+                        "state_kind": "family_alpha",
+                        "origin_trace": "t0",
+                        "weight_band": 0.9,
+                        "decay_rate": 0.1,
+                    },
+                }
+            ],
+        }
+
+    def test_valid_case_passes(self):
+        validate_case(self._valid())  # must not raise
+
+    def test_missing_case_key_raises(self):
+        case = self._valid()
+        del case["allow_list"]
+        with pytest.raises(ValueError, match="case missing keys"):
+            validate_case(case)
+
+    def test_empty_traces_raises(self):
+        case = self._valid()
+        case["traces"] = []
+        with pytest.raises(ValueError, match="no traces"):
+            validate_case(case)
+
+    def test_missing_trace_key_raises(self):
+        case = self._valid()
+        del case["traces"][0]["signal_kind"]
+        with pytest.raises(ValueError, match="trace missing keys"):
+            validate_case(case)
+
+    def test_missing_attrs_key_raises(self):
+        case = self._valid()
+        del case["traces"][0]["attrs"]["weight_band"]
+        with pytest.raises(ValueError, match="trace attrs missing key"):
+            validate_case(case)
+
+    def test_load_cases_roundtrip(self, tmp_path):
+        path = tmp_path / "cases.jsonl"
+        path.write_text(json.dumps(self._valid()) + "\n", encoding="utf-8")
+        cases = load_cases(path)
+        assert len(cases) == 1
+        assert cases[0]["case_id"] == "case_000"
+
+
+# ---------------------------------------------------------------------------
+# plan_builder — symbolic_rule empty-allowed fallback
+# ---------------------------------------------------------------------------
+
+
+class TestPlanBuilderFallback:
+    def test_symbolic_rule_falls_back_to_lowest_when_none_allowed(self):
+        state = {
+            "scores": {"family_delta": 5.0, "family_epsilon": 3.0, "family_zeta": 1.0},
+            "last_trace": "t0",
+            "record_count": 3,
+        }
+        # allow_list contains none of the scored kinds
+        case = _minimal_case(allow=("family_alpha",), deny=(), must=("family_alpha",))
+        plan = build_plan(state, case, "symbolic_rule", 0)
+        # ordered[-1] is the lowest-scoring item
+        assert plan["state_kind"] == "family_zeta"
+        assert plan["score"] == pytest.approx(1.0)
+
+
+# ---------------------------------------------------------------------------
+# scripts.export_summary
+# ---------------------------------------------------------------------------
+
+
+class TestExportSummary:
+    def _records(self):
+        return [
+            {"method": "summary_loop", "passed": True, "score": 1.0, "record_count": 5},
+            {"method": "summary_loop", "passed": False, "score": 0.5, "record_count": 5},
+            {"method": "template_grid", "passed": True, "score": 2.0, "record_count": 6},
+        ]
+
+    def test_read_jsonl_yields_all(self, tmp_path):
+        path = tmp_path / "data.jsonl"
+        path.write_text(
+            "\n".join(json.dumps(r) for r in self._records()) + "\n",
+            encoding="utf-8",
+        )
+        result = list(read_jsonl(path))
+        assert len(result) == 3
+
+    def test_read_jsonl_skips_blank_lines(self, tmp_path):
+        path = tmp_path / "data.jsonl"
+        path.write_text(
+            json.dumps(self._records()[0]) + "\n\n" + json.dumps(self._records()[1]) + "\n",
+            encoding="utf-8",
+        )
+        assert len(list(read_jsonl(path))) == 2
+
+    def test_export_summary_writes_csv_per_method(self, tmp_path):
+        in_path = tmp_path / "runs.jsonl"
+        in_path.write_text(
+            "\n".join(json.dumps(r) for r in self._records()) + "\n",
+            encoding="utf-8",
+        )
+        out_path = tmp_path / "summary.csv"
+        export_summary(in_path, out_path)
+        import csv
+        rows = list(csv.DictReader(out_path.open(encoding="utf-8")))
+        methods = {row["method"] for row in rows}
+        assert methods == {"summary_loop", "template_grid"}
+
+    def test_export_summary_pass_rate_correct(self, tmp_path):
+        in_path = tmp_path / "runs.jsonl"
+        in_path.write_text(
+            "\n".join(json.dumps(r) for r in self._records()) + "\n",
+            encoding="utf-8",
+        )
+        out_path = tmp_path / "summary.csv"
+        export_summary(in_path, out_path)
+        import csv
+        rows = {row["method"]: row for row in csv.DictReader(out_path.open(encoding="utf-8"))}
+        assert float(rows["summary_loop"]["pass_rate"]) == pytest.approx(0.5)
+        assert float(rows["template_grid"]["pass_rate"]) == pytest.approx(1.0)
+
+
+# ---------------------------------------------------------------------------
+# scripts.term_scan — internal logic
+# ---------------------------------------------------------------------------
+
+
+class TestTermScan:
+    def test_blocked_terms_non_empty(self):
+        terms = blocked_terms()
+        assert len(terms) > 0
+        assert all(isinstance(t, str) for t in terms)
+
+    def test_scan_returns_empty_on_clean_repo(self):
+        assert scan() == []
+
+    def test_paper2_allowed_terms_are_subset_of_blocked(self):
+        # Each exempted term must be a real blocked term — exemptions must cover genuine hits
+        from scripts.term_scan import PAPER2_ALLOWED_TERMS
+        assert PAPER2_ALLOWED_TERMS.issubset(set(blocked_terms()))
