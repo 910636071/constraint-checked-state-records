@@ -23,7 +23,7 @@ def export_summary(input_path, out_path):
     with out_path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(
             handle,
-            fieldnames=["method", "runs", "avg_q", "pass_rate", "avg_record_count"],
+            fieldnames=["method", "runs", "avg_q", "var_q", "pass_rate", "avg_record_count"],
         )
         writer.writeheader()
         for method in sorted(groups):

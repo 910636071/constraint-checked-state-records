@@ -293,7 +293,7 @@ class TestScoreCard:
 
     def test_empty_input(self):
         result = score_records([])
-        assert result == {"runs": 0, "avg_q": 0.0, "pass_rate": 0.0, "avg_record_count": 0.0}
+        assert result == {"runs": 0, "avg_q": 0.0, "var_q": 0.0, "pass_rate": 0.0, "avg_record_count": 0.0}
 
     def test_all_pass(self):
         records = [self._record(passed=True, score=1.0)] * 10
@@ -310,6 +310,23 @@ class TestScoreCard:
         records = [self._record(score=0.5), self._record(score=1.5)]
         result = score_records(records)
         assert result["avg_q"] == pytest.approx(1.0)
+
+    def test_var_q_correct(self):
+        records = [self._record(score=0.0), self._record(score=2.0)]
+        result = score_records(records)
+        # population variance: mean=1.0, deviations=[-1,+1], var=1.0
+        assert result["var_q"] == pytest.approx(1.0)
+
+    def test_var_q_zero_for_uniform_scores(self):
+        records = [self._record(score=1.5)] * 5
+        result = score_records(records)
+        assert result["var_q"] == pytest.approx(0.0)
+
+    def test_var_q_bounded_by_M2_over_4(self):
+        M_UPPER = 18.0
+        records = [self._record(score=0.5), self._record(score=1.5)]
+        result = score_records(records)
+        assert result["var_q"] <= M_UPPER ** 2 / 4
 
     def test_avg_record_count_correct(self):
         records = [self._record(record_count=2), self._record(record_count=6)]
