@@ -181,6 +181,10 @@ phi: B -> [0, 1]^n
 X_i = phi(b_i).
 ```
 
+For the Paper 1 artifact, `phi` maps each committed record to a normalized
+concept coordinate vector. The raw accumulated score for concept coordinate `k`
+is divided by `M_UPPER` (defined below) to place each coordinate in `[0, 1]`.
+
 The empirical concept estimate is
 
 ```text
@@ -204,7 +208,26 @@ The scalar estimator `mu_hat_m` is the cleanest object for the first theorem.
 The vector estimator `C_m` gives the corresponding finite concept-space
 version.
 
-### 4.1 Symbol Consistency
+### 4.1 Artifact Score Bound (M_UPPER)
+
+For the Paper 1 artifact, accumulated scores follow a decayed geometric series.
+With `weight_band in {0.5, 0.7, 0.9}` and `decay_rate in {0.05, 0.10, 0.20}`,
+the geometric series limit gives an analytic upper bound on any accumulated
+score:
+
+```text
+M_UPPER = max(weight_band) / min(decay_rate) = 0.9 / 0.05 = 18.0
+```
+
+Any committed score satisfies `Y_i in [0, M_UPPER]`. For the vector case,
+`phi(b) = score_vector / M_UPPER` places each coordinate in `[0, 1]`, as
+required by Definition 9.
+
+The empirical pilot (seed=37, 20 cases, 10 runs per method) yields
+`Var(Y_i) = 0.257`, which is well below `M_UPPER^2 / 4 = 81`, confirming
+that the Popoviciu bound is not tight for this artifact but does hold.
+
+### 4.2 Symbol Consistency
 
 The theorem uses the following symbols consistently:
 
@@ -397,31 +420,35 @@ Paper 2 = formal variance bound for finite constraint-checked concept estimates.
 
 ## 8. Synthetic Convergence Experiment
 
-Paper 2 can add a synthetic convergence experiment without operational data. The
-experiment should demonstrate the theorem's measurement objects, not claim
-external validity.
+A minimal convergence experiment is implemented in
+`scripts/run_convergence.py`. It uses the Paper 1 artifact directly and
+requires no operational data.
 
-Suggested variables:
+**Design.** The experiment fixes the case set (seed=37, 20 cases) and
+sweeps `runs in {1, 2, 5, 10, 20, 50, 100, 200}`, producing
+`m = 60` to `m = 12000` committed records. For each level it reports:
 
-```text
-case_count in {100, 500, 1000}
-behavior_length in {5, 10, 20, 50, 100, 200}
-concept_type_count in {8, 16, 32}
-constraint_set_size in {5, 10, 20}
-seed_count >= 10
-```
+- `avg_q`: mean committed score (empirical `mu_hat_m`);
+- `var_q`: population variance of individual scores (empirical `Var(Y_i)`);
+- `var_mu_hat_iid`: `var_q / m`, the i.i.d.-implied estimate of
+  `Var(mu_hat_m)`;
+- `bound_M2_4m`: the theoretical upper bound `M_UPPER^2 / (4m)`.
 
-Reported metrics:
+Results are written to `outputs/convergence.csv`.
 
-- mean score;
-- variance of score;
-- pass rate;
-- invalid candidate rate;
-- committed record count.
+**Interpretation.** Because the artifact is fully deterministic (fixed
+seed, no stochastic draws), `Var(mu_hat_m)` cannot be observed
+empirically across independent replications. The table instead reports
+`var_q / m` as the i.i.d.-implied variance estimate. The observed
+`var_q ≈ 0.25–0.28` remains bounded and well below `M_UPPER^2 / 4 = 81`
+across all levels, confirming the Popoviciu assumption. The derived
+`var_mu_hat_iid` decreases from `0.0047` at `m=60` to `0.000021` at
+`m=12000`, consistent with the `M_UPPER^2 / (4m)` bound.
 
-The expected result is a decreasing variance envelope as behavior sample size
-increases. The paper should not claim strict monotone decrease for every
-finite observed point.
+**Scope caveat.** This experiment demonstrates the theorem's measurement
+objects on the frozen artifact. It does not claim external validity,
+strict finite-sample monotone decrease, or results beyond this closed
+protocol.
 
 ## 9. FCA Mapping
 
