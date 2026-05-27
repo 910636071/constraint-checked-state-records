@@ -41,6 +41,41 @@ module boundary.
 
 这两种表述描述的是同一个 artifact 的不同层级：符号链条是论文中的形式化表达，实现层链条是可复现代码的模块边界。
 
+## Relationship to Prior Artifact and Benchmark / 与前序 artifact 和 benchmark 的关系
+
+This repository is the current external-review artifact for constraint-checked
+state records. It follows the archived seed artifact:
+
+https://github.com/910636071/rgbd-safe-minimal
+
+The earlier repository preserves the first clean-room minimal symbolic pipeline.
+This repository keeps the same reproducible core while narrowing the research
+boundary toward checked state records, finite constraints, and the Paper 2
+finite-space variance argument.
+
+A separate synthetic benchmark scaffold is available at:
+
+https://github.com/910636071/checked-state-benchmark
+
+That benchmark is a downstream evaluation scaffold. It should be read as a
+later synthetic probe of checked-state behavior, not as product code and not as
+evidence of broad deployment performance.
+
+本仓库是当前用于外部评审的 constraint-checked state records artifact。它承接
+已归档的第一个 clean-room 起点仓库：
+
+https://github.com/910636071/rgbd-safe-minimal
+
+前一个仓库保留最早的最小符号管线；本仓库保留同一可复现核心，并将研究边界
+进一步收束到 checked state records、有限约束和 Paper 2 的有限空间方差论证。
+
+后续的合成 benchmark scaffold 位于：
+
+https://github.com/910636071/checked-state-benchmark
+
+该 benchmark 是下游合成评估脚手架，应理解为 checked-state 行为的后续合成探针，
+不是产品代码，也不是广泛部署性能证据。
+
 ## Contributions / 贡献
 
 1. A minimal symbolic pipeline that separates state construction, candidate
