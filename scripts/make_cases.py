@@ -67,6 +67,101 @@ def build_cases(count=20, seed=37):
     return cases
 
 
+def _edge_trace(case_idx, trace_idx, tick, state_kind, weight, decay):
+    return {
+        "trace_id": f"edge_{case_idx:03d}_{trace_idx:02d}",
+        "signal_kind": SIGNALS[trace_idx % len(SIGNALS)],
+        "agent_x": f"agent_{chr(97 + trace_idx % 6)}",
+        "agent_y": f"agent_{chr(97 + (trace_idx + 2) % 6)}",
+        "tick": tick,
+        "attrs": {
+            "state_kind": state_kind,
+            "origin_trace": f"edge_{case_idx:03d}_{trace_idx:02d}",
+            "weight_band": weight,
+            "decay_rate": decay,
+        },
+    }
+
+
+def build_edge_cases():
+    return [
+        # E0: single trace, zero weight — score stays 0.0
+        {
+            "case_id": "edge_000",
+            "allow_list": ["family_alpha", "family_beta"],
+            "deny_list": ["family_delta"],
+            "must_match": ["family_alpha"],
+            "traces": [_edge_trace(0, 0, 1, "family_alpha", 0.0, 0.0)],
+        },
+        # E1: single trace, unit weight — score = exactly 1.0
+        {
+            "case_id": "edge_001",
+            "allow_list": ["family_alpha", "family_beta"],
+            "deny_list": ["family_delta"],
+            "must_match": ["family_alpha"],
+            "traces": [_edge_trace(1, 0, 1, "family_alpha", 1.0, 0.0)],
+        },
+        # E2: three traces same family, decay=0.0 — pure additive: 3 × 0.9 = 2.7
+        {
+            "case_id": "edge_002",
+            "allow_list": ["family_alpha", "family_beta"],
+            "deny_list": ["family_delta"],
+            "must_match": ["family_alpha"],
+            "traces": [_edge_trace(2, i, i + 1, "family_alpha", 0.9, 0.0) for i in range(3)],
+        },
+        # E3: decay=1.0 on second trace — first family fully zeroed
+        {
+            "case_id": "edge_003",
+            "allow_list": ["family_alpha", "family_beta"],
+            "deny_list": ["family_delta"],
+            "must_match": ["family_beta"],
+            "traces": [
+                _edge_trace(3, 0, 1, "family_alpha", 0.9, 0.0),
+                _edge_trace(3, 1, 3, "family_beta", 0.9, 1.0),
+            ],
+        },
+        # E4: empty deny_list — nothing can be denied
+        {
+            "case_id": "edge_004",
+            "allow_list": ["family_alpha", "family_beta"],
+            "deny_list": [],
+            "must_match": ["family_alpha"],
+            "traces": [_edge_trace(4, 0, 1, "family_alpha", 0.7, 0.1)],
+        },
+        # E5: must_match with two items — either satisfies the constraint
+        {
+            "case_id": "edge_005",
+            "allow_list": ["family_alpha", "family_beta"],
+            "deny_list": ["family_delta"],
+            "must_match": ["family_alpha", "family_beta"],
+            "traces": [
+                _edge_trace(5, 0, 1, "family_alpha", 0.9, 0.0),
+                _edge_trace(5, 1, 3, "family_beta", 0.7, 0.0),
+            ],
+        },
+        # E6: 15 traces — validates pipeline at larger trace count
+        {
+            "case_id": "edge_006",
+            "allow_list": ["family_alpha", "family_gamma"],
+            "deny_list": ["family_zeta"],
+            "must_match": ["family_alpha"],
+            "traces": [
+                _edge_trace(6, i, i + 1, FAMILIES[i % len(FAMILIES)],
+                            WEIGHTS[i % len(WEIGHTS)], DECAYS[(i + 1) % len(DECAYS)])
+                for i in range(15)
+            ],
+        },
+        # E7: all traces the same family — state converges to single scorer
+        {
+            "case_id": "edge_007",
+            "allow_list": ["family_beta", "family_gamma"],
+            "deny_list": ["family_alpha"],
+            "must_match": ["family_beta"],
+            "traces": [_edge_trace(7, i, i + 1, "family_beta", 0.7, 0.1) for i in range(5)],
+        },
+    ]
+
+
 def write_jsonl(cases, path):
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="\n") as handle:
